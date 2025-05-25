@@ -2,6 +2,7 @@
 
 import unittest
 import rclpy
+import rclpy.parameter
 import time
 import threading
 from rclpy.node import Node
@@ -141,7 +142,7 @@ class TestPyTemplateNodeIntegration(unittest.TestCase):
         """Test that parameter changes affect behavior."""
         # Change the topic prefix
         new_param = rclpy.parameter.Parameter('topic_prefix', 
-                                            rclpy.Parameter.Type.STRING, 
+                                            rclpy.parameter.Parameter.Type.STRING, 
                                             'test_prefix')
         result = self.template_node.set_parameters([new_param])
         self.assertTrue(result[0].successful)

@@ -2,6 +2,8 @@
 
 import unittest
 import rclpy
+import rclpy.exceptions
+import rclpy.parameter
 import time
 import threading
 from rclpy.node import Node
@@ -83,24 +85,24 @@ class TestPyTemplateNode(unittest.TestCase):
     
     def test_parameters_exist(self):
         """Test that required parameters are declared."""
-        # Check that parameters exist
-        params = [param.name for param in self.node.get_parameters([])]
-        self.assertIn('publish_rate', params)
-        self.assertIn('topic_prefix', params)
-        
-        # Check default values
-        publish_rate = self.node.get_parameter('publish_rate').value
-        topic_prefix = self.node.get_parameter('topic_prefix').value
-        
-        self.assertGreater(publish_rate, 0.0)
-        self.assertIsInstance(topic_prefix, str)
-        self.assertTrue(len(topic_prefix) > 0)
+        # Check that parameters exist by trying to get them
+        try:
+            publish_rate = self.node.get_parameter('publish_rate').value
+            topic_prefix = self.node.get_parameter('topic_prefix').value
+            
+            # If we get here, parameters exist - check their values
+            self.assertGreater(publish_rate, 0.0)
+            self.assertIsInstance(topic_prefix, str)
+            self.assertTrue(len(topic_prefix) > 0)
+            
+        except rclpy.exceptions.ParameterNotDeclaredException:
+            self.fail("Required parameters 'publish_rate' or 'topic_prefix' not declared")
     
     def test_parameter_update(self):
         """Test that parameters can be updated."""
         # Set a new parameter value
         new_param = rclpy.parameter.Parameter('publish_rate', 
-                                            rclpy.Parameter.Type.DOUBLE, 5.0)
+                                            rclpy.parameter.Parameter.Type.DOUBLE, 5.0)
         result = self.node.set_parameters([new_param])
         
         self.assertTrue(result[0].successful)
