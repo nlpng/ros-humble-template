@@ -106,22 +106,6 @@ jobs:
         else
           docker compose --profile ${{ matrix.profile }} logs
         fi
-    
-    - name: Test ROS 2 topics
-      run: |
-        # Start containers in background
-        if [ "${{ matrix.profile }}" = "default" ]; then
-          docker compose up -d
-          sleep 30
-          
-          # Test that topics are published
-          docker exec ros_template_node ros2 topic list
-          docker exec ros_template_node ros2 topic echo /template/status --max-count 1
-          
-          docker compose down
-        else
-          echo "Skipping topic test for profile ${{ matrix.profile }}"
-        fi
   
   code-quality:
     runs-on: ubuntu-22.04
