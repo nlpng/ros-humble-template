@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
 import math
-import rclpy
-from rclpy.node import Node
 
-from std_msgs.msg import String, Int32
+import rclpy
 from geometry_msgs.msg import Twist
+from rclpy.node import Node
 from sensor_msgs.msg import Temperature
+from std_msgs.msg import Int32, String
 
 
 class PyTemplateNode(Node):

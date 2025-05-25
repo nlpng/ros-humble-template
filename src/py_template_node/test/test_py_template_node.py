@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 
+import threading
+import time
 import unittest
+
 import rclpy
 import rclpy.exceptions
 import rclpy.parameter
-import time
-import threading
-from rclpy.node import Node
-from std_msgs.msg import String, Int32
 from geometry_msgs.msg import Twist
+from rclpy.node import Node
 from sensor_msgs.msg import Temperature
+from std_msgs.msg import Int32, String
 
 from py_template_node.py_template_node import PyTemplateNode
 
