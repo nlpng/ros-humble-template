@@ -21,38 +21,38 @@ class TestIntegrationNode(Node):
 
     def __init__(self):
         """Initialize the test integration node."""
-        super().__init__('test_integration_node')
-        self.message_counts = {'status': 0, 'counter': 0, 'temperature': 0}
+        super().__init__("test_integration_node")
+        self.message_counts = {"status": 0, "counter": 0, "temperature": 0}
         self.last_messages = {}
 
         # Subscribers for monitoring
         self.status_sub = self.create_subscription(
-            String, 'py_template/status', self.status_callback, 10
+            String, "py_template/status", self.status_callback, 10
         )
         self.counter_sub = self.create_subscription(
-            Int32, 'py_template/counter', self.counter_callback, 10
+            Int32, "py_template/counter", self.counter_callback, 10
         )
         self.temp_sub = self.create_subscription(
-            Temperature, 'py_template/temperature', self.temp_callback, 10
+            Temperature, "py_template/temperature", self.temp_callback, 10
         )
 
         # Publisher for sending commands
-        self.cmd_pub = self.create_publisher(Twist, 'py_template/cmd_vel', 10)
+        self.cmd_pub = self.create_publisher(Twist, "py_template/cmd_vel", 10)
 
     def status_callback(self, msg):
         """Handle status messages."""
-        self.message_counts['status'] += 1
-        self.last_messages['status'] = msg.data
+        self.message_counts["status"] += 1
+        self.last_messages["status"] = msg.data
 
     def counter_callback(self, msg):
         """Handle counter messages."""
-        self.message_counts['counter'] += 1
-        self.last_messages['counter'] = msg.data
+        self.message_counts["counter"] += 1
+        self.last_messages["counter"] = msg.data
 
     def temp_callback(self, msg):
         """Handle temperature messages."""
-        self.message_counts['temperature'] += 1
-        self.last_messages['temperature'] = msg.temperature
+        self.message_counts["temperature"] += 1
+        self.last_messages["temperature"] = msg.temperature
 
     def send_cmd_vel(self, linear_x=0.0, angular_z=0.0):
         """Send a cmd_vel message."""
@@ -108,16 +108,16 @@ class TestPyTemplateNodeIntegration(unittest.TestCase):
         start_time = time.time()
 
         while time.time() - start_time < max_wait_time and (
-            self.test_node.message_counts['status'] == 0
-            or self.test_node.message_counts['counter'] == 0
-            or self.test_node.message_counts['temperature'] == 0
+            self.test_node.message_counts["status"] == 0
+            or self.test_node.message_counts["counter"] == 0
+            or self.test_node.message_counts["temperature"] == 0
         ):
             time.sleep(0.1)
 
         # Verify all message types received
-        self.assertGreater(self.test_node.message_counts['status'], 0)
-        self.assertGreater(self.test_node.message_counts['counter'], 0)
-        self.assertGreater(self.test_node.message_counts['temperature'], 0)
+        self.assertGreater(self.test_node.message_counts["status"], 0)
+        self.assertGreater(self.test_node.message_counts["counter"], 0)
+        self.assertGreater(self.test_node.message_counts["temperature"], 0)
 
     def test_bidirectional_communication(self):
         """Test sending commands to the node."""
@@ -131,7 +131,7 @@ class TestPyTemplateNodeIntegration(unittest.TestCase):
 
         # Node should continue publishing (no crashes)
         self.assertGreater(
-            self.test_node.message_counts['status'], initial_counts['status']
+            self.test_node.message_counts["status"], initial_counts["status"]
         )
 
     def test_message_frequency(self):
@@ -145,23 +145,23 @@ class TestPyTemplateNodeIntegration(unittest.TestCase):
 
         # With default 1.0 Hz rate, should have ~3 messages of each type
         # Allow some tolerance for timing variations
-        for msg_type in ['status', 'counter', 'temperature']:
+        for msg_type in ["status", "counter", "temperature"]:
             count = self.test_node.message_counts[msg_type]
-            self.assertGreaterEqual(count, 2, f'Too few {msg_type} messages: {count}')
-            self.assertLessEqual(count, 5, f'Too many {msg_type} messages: {count}')
+            self.assertGreaterEqual(count, 2, f"Too few {msg_type} messages: {count}")
+            self.assertLessEqual(count, 5, f"Too many {msg_type} messages: {count}")
 
     def test_parameter_effects(self):
         """Test that parameter changes affect behavior."""
         # Change the topic prefix
         new_param = rclpy.parameter.Parameter(
-            'topic_prefix', rclpy.parameter.Parameter.Type.STRING, 'test_prefix'
+            "topic_prefix", rclpy.parameter.Parameter.Type.STRING, "test_prefix"
         )
         result = self.template_node.set_parameters([new_param])
         self.assertTrue(result[0].successful)
 
         # Verify parameter was set
-        updated_prefix = self.template_node.get_parameter('topic_prefix').value
-        self.assertEqual(updated_prefix, 'test_prefix')
+        updated_prefix = self.template_node.get_parameter("topic_prefix").value
+        self.assertEqual(updated_prefix, "test_prefix")
 
     def test_multiple_command_processing(self):
         """Test processing multiple commands in sequence."""
@@ -180,9 +180,9 @@ class TestPyTemplateNodeIntegration(unittest.TestCase):
         time.sleep(1.0)
 
         # Node should still be operational
-        initial_count = self.test_node.message_counts['status']
+        initial_count = self.test_node.message_counts["status"]
         time.sleep(1.0)
-        final_count = self.test_node.message_counts['status']
+        final_count = self.test_node.message_counts["status"]
 
         self.assertGreater(final_count, initial_count)
 
@@ -192,19 +192,19 @@ class TestPyTemplateNodeIntegration(unittest.TestCase):
         time.sleep(3.0)
 
         # Check status message format
-        if 'status' in self.test_node.last_messages:
-            status_msg = self.test_node.last_messages['status']
-            self.assertIn('Python template node running', status_msg)
-            self.assertIn('count:', status_msg)
+        if "status" in self.test_node.last_messages:
+            status_msg = self.test_node.last_messages["status"]
+            self.assertIn("Python template node running", status_msg)
+            self.assertIn("count:", status_msg)
 
         # Check counter is non-negative and increasing
-        if 'counter' in self.test_node.last_messages:
-            counter_value = self.test_node.last_messages['counter']
+        if "counter" in self.test_node.last_messages:
+            counter_value = self.test_node.last_messages["counter"]
             self.assertGreaterEqual(counter_value, 0)
 
         # Check temperature is in reasonable range
-        if 'temperature' in self.test_node.last_messages:
-            temp_value = self.test_node.last_messages['temperature']
+        if "temperature" in self.test_node.last_messages:
+            temp_value = self.test_node.last_messages["temperature"]
             self.assertGreater(temp_value, 10.0)
             self.assertLess(temp_value, 30.0)
 
@@ -220,13 +220,13 @@ class TestPyTemplateNodeIntegration(unittest.TestCase):
         # Wait and verify node is still running
         time.sleep(2.0)
 
-        initial_count = self.test_node.message_counts['counter']
+        initial_count = self.test_node.message_counts["counter"]
         time.sleep(1.0)
-        final_count = self.test_node.message_counts['counter']
+        final_count = self.test_node.message_counts["counter"]
 
         # Node should still be publishing
         self.assertGreater(final_count, initial_count)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
