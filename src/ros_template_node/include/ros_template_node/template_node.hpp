@@ -11,8 +11,7 @@
 #include "std_msgs/msg/int32.hpp"
 #include "std_msgs/msg/string.hpp"
 
-class TemplateNode : public rclcpp::Node 
-{
+class TemplateNode : public rclcpp::Node {
 public:
   TemplateNode();
 
@@ -26,7 +25,8 @@ private:
   // Publishers
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr string_publisher_;
   rclcpp::Publisher<std_msgs::msg::Int32>::SharedPtr counter_publisher_;
-  rclcpp::Publisher<sensor_msgs::msg::Temperature>::SharedPtr temperature_publisher_;
+  rclcpp::Publisher<sensor_msgs::msg::Temperature>::SharedPtr
+      temperature_publisher_;
 
   // Subscriber
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_subscription_;

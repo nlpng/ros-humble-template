@@ -13,8 +13,7 @@
 
 using namespace std::chrono_literals;
 
-class TemplateNodeIntegrationTest : public ::testing::Test 
-{
+class TemplateNodeIntegrationTest : public ::testing::Test {
 protected:
   void SetUp() override {
     rclcpp::init(0, nullptr);
@@ -22,15 +21,18 @@ protected:
 
     // Create a publisher to send commands to the node
     cmd_publisher_ = std::make_shared<rclcpp::Node>("test_commander");
-    cmd_pub_ = cmd_publisher_->create_publisher<geometry_msgs::msg::Twist>("template/cmd_vel", 10);
+    cmd_pub_ = cmd_publisher_->create_publisher<geometry_msgs::msg::Twist>(
+        "template/cmd_vel", 10);
 
     // Create subscriber to monitor temperature messages
     temp_subscriber_ = std::make_shared<rclcpp::Node>("test_temp_subscriber");
-    temp_sub_ = temp_subscriber_->create_subscription<sensor_msgs::msg::Temperature>(
-        "template/temperature", 10, [this](const sensor_msgs::msg::Temperature::SharedPtr msg) {
-          last_temperature_ = msg->temperature;
-          temp_received_ = true;
-        });
+    temp_sub_ =
+        temp_subscriber_->create_subscription<sensor_msgs::msg::Temperature>(
+            "template/temperature", 10,
+            [this](const sensor_msgs::msg::Temperature::SharedPtr msg) {
+              last_temperature_ = msg->temperature;
+              temp_received_ = true;
+            });
   }
 
   void TearDown() override {
@@ -110,17 +112,26 @@ TEST_F(TemplateNodeIntegrationTest, MultipleMessageTypes) {
   int counter_count = 0;
   int temp_count = 0;
 
-  auto status_sub = temp_subscriber_->create_subscription<std_msgs::msg::String>(
-    "template/status", 10,
-    [&status_count](const std_msgs::msg::String::SharedPtr) { status_count++; });
+  auto status_sub =
+      temp_subscriber_->create_subscription<std_msgs::msg::String>(
+          "template/status", 10,
+          [&status_count](const std_msgs::msg::String::SharedPtr) {
+            status_count++;
+          });
 
-  auto counter_sub = temp_subscriber_->create_subscription<std_msgs::msg::Int32>(
-    "template/counter", 10,
-    [&counter_count](const std_msgs::msg::Int32::SharedPtr) { counter_count++; });
+  auto counter_sub =
+      temp_subscriber_->create_subscription<std_msgs::msg::Int32>(
+          "template/counter", 10,
+          [&counter_count](const std_msgs::msg::Int32::SharedPtr) {
+            counter_count++;
+          });
 
-  auto temp_sub = temp_subscriber_->create_subscription<sensor_msgs::msg::Temperature>(
-    "template/temperature", 10,
-    [&temp_count](const sensor_msgs::msg::Temperature::SharedPtr) { temp_count++; });
+  auto temp_sub =
+      temp_subscriber_->create_subscription<sensor_msgs::msg::Temperature>(
+          "template/temperature", 10,
+          [&temp_count](const sensor_msgs::msg::Temperature::SharedPtr) {
+            temp_count++;
+          });
 
   // Run for a few seconds to collect messages
   auto start_time = std::chrono::steady_clock::now();

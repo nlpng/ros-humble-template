@@ -12,17 +12,14 @@
 
 using namespace std::chrono_literals;
 
-class TemplateNodeTest : public ::testing::Test
-{
+class TemplateNodeTest : public ::testing::Test {
 protected:
-  void SetUp() override
-  {
+  void SetUp() override {
     rclcpp::init(0, nullptr);
     node_ = std::make_shared<TemplateNode>();
   }
 
-  void TearDown() override
-  {
+  void TearDown() override {
     node_.reset();
     rclcpp::shutdown();
   }
@@ -61,7 +58,7 @@ TEST_F(TemplateNodeTest, PublishersCreated) {
   bool has_counter_topic = false;
   bool has_temperature_topic = false;
 
-  for (const auto & topic : topic_names) {
+  for (const auto &topic : topic_names) {
     if (topic.first.find("status") != std::string::npos) {
       has_status_topic = true;
     }
@@ -87,21 +84,22 @@ TEST_F(TemplateNodeTest, ParameterUpdate) {
   EXPECT_DOUBLE_EQ(updated_rate, 5.0);
 }
 
-class MessageReceiver : public rclcpp::Node
-{
+class MessageReceiver : public rclcpp::Node {
 public:
   MessageReceiver() : Node("message_receiver") {
     status_sub_ = this->create_subscription<std_msgs::msg::String>(
-      "template/status", 10, [this](const std_msgs::msg::String::SharedPtr msg) {
-        last_status_msg_ = msg->data;
-        status_received_ = true;
-      });
+        "template/status", 10,
+        [this](const std_msgs::msg::String::SharedPtr msg) {
+          last_status_msg_ = msg->data;
+          status_received_ = true;
+        });
 
     counter_sub_ = this->create_subscription<std_msgs::msg::Int32>(
-      "template/counter", 10, [this](const std_msgs::msg::Int32::SharedPtr msg) {
-        last_counter_value_ = msg->data;
-        counter_received_ = true;
-      });
+        "template/counter", 10,
+        [this](const std_msgs::msg::Int32::SharedPtr msg) {
+          last_counter_value_ = msg->data;
+          counter_received_ = true;
+        });
   }
 
   std::string last_status_msg_;
@@ -136,7 +134,7 @@ TEST_F(TemplateNodeTest, MessagePublishing) {
   EXPECT_GE(receiver->last_counter_value_, 0);
 }
 
-int main(int argc, char ** argv) {
+int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
