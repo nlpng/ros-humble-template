@@ -7,9 +7,8 @@ import unittest
 
 import rclpy
 import rclpy.parameter
-from rclpy.node import Node
-
 from geometry_msgs.msg import Twist
+from rclpy.node import Node
 from sensor_msgs.msg import Temperature
 from std_msgs.msg import Int32, String
 
