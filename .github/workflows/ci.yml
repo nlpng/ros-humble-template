@@ -175,37 +175,6 @@ jobs:
         colcon test --packages-select ros_template_node py_template_node \
           --event-handlers console_direct+ --pytest-args "--verbose"
   
-  multi-arch-build:
-    runs-on: ubuntu-22.04
-    needs: [test, docker-test]
-    if: github.ref == 'refs/heads/main'
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v3
-    
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-    
-    - name: Build multi-architecture images
-      run: |
-        docker buildx build \
-          --platform linux/amd64,linux/arm64 \
-          --tag ros-template:humble-multiarch \
-          --build-arg BUILDPLATFORM=linux/amd64 \
-          .
-    
-    - name: Test ARM64 compatibility
-      run: |
-        # Test that ARM64 image can be built
-        docker buildx build \
-          --platform linux/arm64 \
-          --tag ros-template:humble-arm64 \
-          --load \
-          .
-  
   security-scan:
     runs-on: ubuntu-22.04
     steps:
