@@ -1,4 +1,8 @@
-Language: Cpp
 BasedOnStyle: Google
+
+AccessModifierOffset: -2
+AllowShortIfStatementsOnASingleLine: true
+BreakBeforeBraces: Attach
+ColumnLimit: 80
+DerivePointerAlignment: true
 IndentWidth: 2
-ColumnLimit: 100
