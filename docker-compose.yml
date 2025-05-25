@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  ros_template:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ros-template:humble
+    container_name: ros_template_node
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      - ROS_DOMAIN_ID=0
+      - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+      - DISPLAY=${DISPLAY:-:0}
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    stdin_open: true
+    tty: true
+    command: >
+      ros2 launch ros_template_node template.launch.py
+      publish_rate:=2.0
+      topic_prefix:=template
+      enable_foxglove:=true
+      foxglove_port:=8765
+
+  # Optional: Additional services can be added here
+  # For example, another instance with different parameters:
+  ros_template_fast:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ros-template:humble
+    container_name: ros_template_node_fast
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      - ROS_DOMAIN_ID=0
+      - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+    stdin_open: true
+    tty: true
+    profiles:
+      - multi-node
+    command: >
+      ros2 launch ros_template_node template.launch.py
+      publish_rate:=10.0
+      topic_prefix:=template_fast
+      enable_foxglove:=false
