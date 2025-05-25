@@ -12,25 +12,29 @@ find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
-# Add executable
-add_executable(template_node src/template_node.cpp)
+# Create library for testing
+add_library(${PROJECT_NAME} src/template_node.cpp)
 
-# Include directories
-target_include_directories(template_node PUBLIC
+# Include directories for library
+target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
 # Target compile features
-target_compile_features(template_node PUBLIC c_std_99 cxx_std_17)
+target_compile_features(${PROJECT_NAME} PUBLIC c_std_99 cxx_std_17)
 
-# Link dependencies
+# Link dependencies to library
 ament_target_dependencies(
-  template_node
+  ${PROJECT_NAME}
   "rclcpp"
   "std_msgs"
   "geometry_msgs"
   "sensor_msgs"
 )
+
+# Create executable
+add_executable(template_node src/main.cpp)
+target_link_libraries(template_node ${PROJECT_NAME})
 
 # Install targets
 install(TARGETS template_node
@@ -43,7 +47,34 @@ install(DIRECTORY launch
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
+  find_package(ament_cmake_gtest REQUIRED)
+  find_package(ament_cmake_gmock REQUIRED)
+  
   ament_lint_auto_find_test_dependencies()
+  
+  # Unit tests
+  ament_add_gtest(${PROJECT_NAME}_test test/test_template_node.cpp)
+  if(TARGET ${PROJECT_NAME}_test)
+    target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME})
+    ament_target_dependencies(${PROJECT_NAME}_test
+      "rclcpp"
+      "std_msgs"
+      "geometry_msgs"
+      "sensor_msgs"
+    )
+  endif()
+  
+  # Integration tests
+  ament_add_gtest(${PROJECT_NAME}_integration_test test/test_integration.cpp)
+  if(TARGET ${PROJECT_NAME}_integration_test)
+    target_link_libraries(${PROJECT_NAME}_integration_test ${PROJECT_NAME})
+    ament_target_dependencies(${PROJECT_NAME}_integration_test
+      "rclcpp"
+      "std_msgs"
+      "geometry_msgs"
+      "sensor_msgs"
+    )
+  endif()
 endif()
 
 ament_package()

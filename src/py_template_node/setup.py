@@ -13,6 +13,9 @@ setup(
         ('share/' + package_name + '/launch', ['launch/py_template.launch.py']),
     ],
     install_requires=['setuptools'],
+    extras_require={
+        'test': ['pytest'],
+    },
     zip_safe=True,
     maintainer='Developer',
     maintainer_email='developer@example.com',

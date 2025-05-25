@@ -1,20 +1,7 @@
-#include <chrono>
-#include <functional>
-#include <memory>
-#include <string>
+#include "ros_template_node/template_node.hpp"
+#include <cmath>
 
-#include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/string.hpp"
-#include "std_msgs/msg/int32.hpp"
-#include "geometry_msgs/msg/twist.hpp"
-#include "sensor_msgs/msg/temperature.hpp"
-
-using namespace std::chrono_literals;
-
-class TemplateNode : public rclcpp::Node
-{
-public:
-    TemplateNode() : Node("template_node"), count_(0)
+TemplateNode::TemplateNode() : Node("template_node"), count_(0)
     {
         // Declare parameters with default values
         this->declare_parameter("publish_rate", 1.0);
@@ -48,9 +35,8 @@ public:
         RCLCPP_INFO(this->get_logger(), "Publishing to topics with prefix: %s", topic_prefix.c_str());
     }
 
-private:
-    void timer_callback()
-    {
+void TemplateNode::timer_callback()
+{
         // Publish status message
         auto status_msg = std_msgs::msg::String();
         status_msg.data = "Template node running - count: " + std::to_string(count_);
@@ -76,8 +62,8 @@ private:
         
         count_++;
     }
-    
-    void cmd_callback(const geometry_msgs::msg::Twist::SharedPtr msg)
+
+void TemplateNode::cmd_callback(const geometry_msgs::msg::Twist::SharedPtr msg)
     {
         RCLCPP_INFO(this->get_logger(), "Received cmd_vel - linear: [%.2f, %.2f, %.2f], angular: [%.2f, %.2f, %.2f]",
                    msg->linear.x, msg->linear.y, msg->linear.z,
@@ -88,30 +74,3 @@ private:
             RCLCPP_INFO(this->get_logger(), "Robot is moving!");
         }
     }
-    
-    // Timer
-    rclcpp::TimerBase::SharedPtr timer_;
-    
-    // Publishers
-    rclcpp::Publisher<std_msgs::msg::String>::SharedPtr string_publisher_;
-    rclcpp::Publisher<std_msgs::msg::Int32>::SharedPtr counter_publisher_;
-    rclcpp::Publisher<sensor_msgs::msg::Temperature>::SharedPtr temperature_publisher_;
-    
-    // Subscriber
-    rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_subscription_;
-    
-    // Data
-    size_t count_;
-};
-
-int main(int argc, char * argv[])
-{
-    rclcpp::init(argc, argv);
-    auto node = std::make_shared<TemplateNode>();
-    
-    RCLCPP_INFO(node->get_logger(), "Starting template node...");
-    
-    rclcpp::spin(node);
-    rclcpp::shutdown();
-    return 0;
-}
