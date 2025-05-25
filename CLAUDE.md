@@ -97,6 +97,7 @@ src/
 
 ### ✅ Task Completion
 - **Mark completed tasks in `TASK.md`** immediately after finishing them.
+- After finishing each task, commit the change with compact and accurate commit messages.
 - Add new sub-tasks or TODOs discovered during development to `TASK.md` under a "Discovered During Work" section.
 
 ### 📚 Documentation & Explainability
