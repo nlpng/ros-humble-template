@@ -29,7 +29,7 @@ class TemplateNodeTest : public ::testing::Test {
 
 TEST_F(TemplateNodeTest, NodeCreation) {
   ASSERT_NE(node_, nullptr);
-  EXPECT_EQ(node_->get_name(), "template_node");
+  EXPECT_STREQ(node_->get_name(), "template_node");
 }
 
 TEST_F(TemplateNodeTest, ParametersExist) {
