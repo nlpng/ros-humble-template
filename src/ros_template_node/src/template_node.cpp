@@ -2,7 +2,8 @@
 
 #include <cmath>
 
-TemplateNode::TemplateNode() : Node("template_node"), count_(0) {
+TemplateNode::TemplateNode() : Node("template_node"), count_(0)
+{
   // Declare parameters with default values
   this->declare_parameter("publish_rate", 1.0);
   this->declare_parameter("topic_prefix", "template");
@@ -39,7 +40,8 @@ TemplateNode::TemplateNode() : Node("template_node"), count_(0) {
               topic_prefix.c_str());
 }
 
-void TemplateNode::timer_callback() {
+void TemplateNode::timer_callback()
+{
   // Publish status message
   auto status_msg = std_msgs::msg::String();
   status_msg.data = "Template node running - count: " + std::to_string(count_);
@@ -67,8 +69,8 @@ void TemplateNode::timer_callback() {
   count_++;
 }
 
-void TemplateNode::cmd_callback(
-    const geometry_msgs::msg::Twist::SharedPtr msg) {
+void TemplateNode::cmd_callback(const geometry_msgs::msg::Twist::SharedPtr msg)
+{
   RCLCPP_INFO(this->get_logger(),
               "Received cmd_vel - linear: [%.2f, %.2f, %.2f], angular: [%.2f, "
               "%.2f, %.2f]",

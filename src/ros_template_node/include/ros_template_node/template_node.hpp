@@ -11,7 +11,8 @@
 #include "std_msgs/msg/int32.hpp"
 #include "std_msgs/msg/string.hpp"
 
-class TemplateNode : public rclcpp::Node {
+class TemplateNode : public rclcpp::Node
+{
 public:
   TemplateNode();
 

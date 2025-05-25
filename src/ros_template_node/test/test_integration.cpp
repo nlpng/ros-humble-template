@@ -13,9 +13,11 @@
 
 using namespace std::chrono_literals;
 
-class TemplateNodeIntegrationTest : public ::testing::Test {
+class TemplateNodeIntegrationTest : public ::testing::Test
+{
 protected:
-  void SetUp() override {
+  void SetUp() override
+  {
     rclcpp::init(0, nullptr);
     node_ = std::make_shared<TemplateNode>();
 
@@ -35,7 +37,8 @@ protected:
             });
   }
 
-  void TearDown() override {
+  void TearDown() override
+  {
     node_.reset();
     cmd_publisher_.reset();
     temp_subscriber_.reset();
@@ -52,7 +55,8 @@ protected:
   bool temp_received_ = false;
 };
 
-TEST_F(TemplateNodeIntegrationTest, CommandVelocityProcessing) {
+TEST_F(TemplateNodeIntegrationTest, CommandVelocityProcessing)
+{
   // Create a twist message
   auto twist_msg = geometry_msgs::msg::Twist();
   twist_msg.linear.x = 1.0;
@@ -73,7 +77,8 @@ TEST_F(TemplateNodeIntegrationTest, CommandVelocityProcessing) {
   SUCCEED();
 }
 
-TEST_F(TemplateNodeIntegrationTest, TemperaturePublishing) {
+TEST_F(TemplateNodeIntegrationTest, TemperaturePublishing)
+{
   // Spin nodes to allow temperature publishing
   auto start_time = std::chrono::steady_clock::now();
   while (std::chrono::steady_clock::now() - start_time < 5s) {
@@ -95,7 +100,8 @@ TEST_F(TemplateNodeIntegrationTest, TemperaturePublishing) {
   EXPECT_LT(last_temperature_, 30.0);
 }
 
-TEST_F(TemplateNodeIntegrationTest, NodeParameterConfiguration) {
+TEST_F(TemplateNodeIntegrationTest, NodeParameterConfiguration)
+{
   // Test changing parameters while node is running
   auto param = rclcpp::Parameter("topic_prefix", "test_prefix");
   auto result = node_->set_parameter(param);
@@ -106,7 +112,8 @@ TEST_F(TemplateNodeIntegrationTest, NodeParameterConfiguration) {
   EXPECT_EQ(updated_prefix, "test_prefix");
 }
 
-TEST_F(TemplateNodeIntegrationTest, MultipleMessageTypes) {
+TEST_F(TemplateNodeIntegrationTest, MultipleMessageTypes)
+{
   // Test that the node publishes multiple message types
   int status_count = 0;
   int counter_count = 0;
@@ -147,7 +154,8 @@ TEST_F(TemplateNodeIntegrationTest, MultipleMessageTypes) {
   EXPECT_GT(temp_count, 0);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

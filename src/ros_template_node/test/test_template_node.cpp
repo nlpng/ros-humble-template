@@ -12,14 +12,17 @@
 
 using namespace std::chrono_literals;
 
-class TemplateNodeTest : public ::testing::Test {
+class TemplateNodeTest : public ::testing::Test
+{
 protected:
-  void SetUp() override {
+  void SetUp() override
+  {
     rclcpp::init(0, nullptr);
     node_ = std::make_shared<TemplateNode>();
   }
 
-  void TearDown() override {
+  void TearDown() override
+  {
     node_.reset();
     rclcpp::shutdown();
   }
@@ -27,12 +30,14 @@ protected:
   std::shared_ptr<TemplateNode> node_;
 };
 
-TEST_F(TemplateNodeTest, NodeCreation) {
+TEST_F(TemplateNodeTest, NodeCreation)
+{
   ASSERT_NE(node_, nullptr);
   EXPECT_STREQ(node_->get_name(), "template_node");
 }
 
-TEST_F(TemplateNodeTest, ParametersExist) {
+TEST_F(TemplateNodeTest, ParametersExist)
+{
   // Test that parameters are declared
   EXPECT_TRUE(node_->has_parameter("publish_rate"));
   EXPECT_TRUE(node_->has_parameter("topic_prefix"));
@@ -45,7 +50,8 @@ TEST_F(TemplateNodeTest, ParametersExist) {
   EXPECT_FALSE(topic_prefix.empty());
 }
 
-TEST_F(TemplateNodeTest, PublishersCreated) {
+TEST_F(TemplateNodeTest, PublishersCreated)
+{
   // Give the node time to initialize
   rclcpp::spin_some(node_);
 
@@ -75,7 +81,8 @@ TEST_F(TemplateNodeTest, PublishersCreated) {
   EXPECT_TRUE(has_temperature_topic);
 }
 
-TEST_F(TemplateNodeTest, ParameterUpdate) {
+TEST_F(TemplateNodeTest, ParameterUpdate)
+{
   // Test parameter update
   auto param = rclcpp::Parameter("publish_rate", 5.0);
   node_->set_parameter(param);
@@ -84,9 +91,11 @@ TEST_F(TemplateNodeTest, ParameterUpdate) {
   EXPECT_DOUBLE_EQ(updated_rate, 5.0);
 }
 
-class MessageReceiver : public rclcpp::Node {
+class MessageReceiver : public rclcpp::Node
+{
 public:
-  MessageReceiver() : Node("message_receiver") {
+  MessageReceiver() : Node("message_receiver")
+  {
     status_sub_ = this->create_subscription<std_msgs::msg::String>(
         "template/status", 10,
         [this](const std_msgs::msg::String::SharedPtr msg) {
@@ -112,7 +121,8 @@ private:
   rclcpp::Subscription<std_msgs::msg::Int32>::SharedPtr counter_sub_;
 };
 
-TEST_F(TemplateNodeTest, MessagePublishing) {
+TEST_F(TemplateNodeTest, MessagePublishing)
+{
   auto receiver = std::make_shared<MessageReceiver>();
 
   // Spin both nodes for a short time to allow message publishing
@@ -134,7 +144,8 @@ TEST_F(TemplateNodeTest, MessagePublishing) {
   EXPECT_GE(receiver->last_counter_value_, 0);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
