@@ -22,8 +22,29 @@ services:
       enable_foxglove:=true
       foxglove_port:=8765
 
-  # Optional: Additional services can be added here
-  # For example, another instance with different parameters:
+  # Python template node
+  py_template:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ros-template:humble
+    container_name: py_template_node
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      - ROS_DOMAIN_ID=0
+      - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+    stdin_open: true
+    tty: true
+    profiles:
+      - python
+    command: >
+      ros2 launch py_template_node py_template.launch.py
+      publish_rate:=1.5
+      topic_prefix:=py_template
+      enable_foxglove:=false
+
+  # Optional: Fast C++ instance with different parameters
   ros_template_fast:
     build:
       context: .
@@ -44,3 +65,28 @@ services:
       publish_rate:=10.0
       topic_prefix:=template_fast
       enable_foxglove:=false
+
+  # Both C++ and Python nodes together
+  dual_nodes:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ros-template:humble
+    container_name: dual_template_nodes
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      - ROS_DOMAIN_ID=0
+      - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+    stdin_open: true
+    tty: true
+    profiles:
+      - dual
+    command: >
+      bash -c "
+      ros2 launch ros_template_node template.launch.py 
+      publish_rate:=2.0 topic_prefix:=cpp_template enable_foxglove:=true &
+      ros2 launch py_template_node py_template.launch.py 
+      publish_rate:=1.5 topic_prefix:=py_template enable_foxglove:=false &
+      wait
+      "
