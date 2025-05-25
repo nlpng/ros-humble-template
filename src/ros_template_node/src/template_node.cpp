@@ -1,5 +1,3 @@
-#pragma once
-
 #include <chrono>
 #include <functional>
 #include <memory>
@@ -72,7 +70,7 @@ private:
         temperature_publisher_->publish(temp_msg);
         
         if (count_ % 10 == 0) {
-            RCLCPP_INFO(this->get_logger(), "Published count: %d, temp: %.2f°C", 
+            RCLCPP_INFO(this->get_logger(), "Published count: %zu, temp: %.2f°C", 
                        count_, temp_msg.temperature);
         }
         

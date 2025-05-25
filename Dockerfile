@@ -23,7 +23,7 @@ RUN rosdep init || true && \
 
 # Build the workspace
 RUN . /opt/ros/humble/setup.sh && \
-    colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
+    colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
 
 # Production stage
 FROM ros:humble-ros-base
@@ -31,8 +31,8 @@ FROM ros:humble-ros-base
 # Install runtime dependencies and Foxglove bridge
 RUN apt-get update && apt-get install -y \
     ros-humble-foxglove-bridge \
-    python3-launch \
-    python3-launch-ros \
+    ros-humble-launch \
+    ros-humble-launch-ros \
     && rm -rf /var/lib/apt/lists/*
 
 # Create workspace
