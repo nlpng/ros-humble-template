@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, ExecuteProcess
+from launch.actions import DeclareLaunchArgument
 from launch.conditions import IfCondition
-from launch.substitutions import LaunchConfiguration, PythonExpression
+from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 
@@ -64,13 +64,6 @@ def generate_launch_description():
         }],
         output='screen',
         condition=IfCondition(LaunchConfiguration('enable_foxglove'))
-    )
-    
-    # Alternative: Install foxglove_bridge using apt if not available
-    install_foxglove = ExecuteProcess(
-        cmd=['bash', '-c', 'apt-get update && apt-get install -y ros-humble-foxglove-bridge || echo "Foxglove bridge package not available, install manually"'],
-        output='screen',
-        condition=IfCondition(PythonExpression(['"', LaunchConfiguration('enable_foxglove'), '" == "true"']))
     )
 
     return LaunchDescription([
