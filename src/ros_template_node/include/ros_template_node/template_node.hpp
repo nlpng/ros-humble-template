@@ -11,11 +11,12 @@
 #include "std_msgs/msg/int32.hpp"
 #include "std_msgs/msg/string.hpp"
 
-class TemplateNode : public rclcpp::Node {
- public:
+class TemplateNode : public rclcpp::Node 
+{
+public:
   TemplateNode();
 
- private:
+private:
   void timer_callback();
   void cmd_callback(const geometry_msgs::msg::Twist::SharedPtr msg);
 
