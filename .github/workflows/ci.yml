@@ -139,10 +139,10 @@ jobs:
         sudo apt-get install -y \
           clang-format \
           python3-flake8 \
-          python3-black \
+          python3-pip \
           cppcheck
         
-        pip3 install mypy
+        pip3 install --user black mypy
     
     - name: C++ Code Quality
       run: |
@@ -155,14 +155,17 @@ jobs:
     
     - name: Python Code Quality
       run: |
+        # Add pip install location to PATH
+        export PATH=$PATH:$HOME/.local/bin
+        
         # Check Python formatting
-        black --check src/py_template_node/py_template_node/ src/py_template_node/test/
+        python3 -m black --check src/py_template_node/py_template_node/ src/py_template_node/test/
         
         # Check Python style
-        flake8 src/py_template_node/py_template_node/ src/py_template_node/test/ --max-line-length=100
+        python3 -m flake8 src/py_template_node/py_template_node/ src/py_template_node/test/ --max-line-length=100
         
         # Type checking
-        mypy src/py_template_node/py_template_node/ --ignore-missing-imports
+        python3 -m mypy src/py_template_node/py_template_node/ --ignore-missing-imports
     
     - name: ROS 2 Linting
       run: |
