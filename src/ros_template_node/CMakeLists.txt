@@ -50,8 +50,6 @@ if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
   find_package(ament_cmake_gmock REQUIRED)
 
-  ament_lint_auto_find_test_dependencies()
-
   # Unit tests
   ament_add_gtest(${PROJECT_NAME}_test test/test_template_node.cpp)
   if(TARGET ${PROJECT_NAME}_test)
