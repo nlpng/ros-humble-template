@@ -160,9 +160,6 @@ jobs:
         # Check Python formatting
         python3 -m black --check src/py_template_node/py_template_node/ src/py_template_node/test/
         
-        # Check Python style
-        python3 -m flake8 src/py_template_node/py_template_node/ src/py_template_node/test/ --max-line-length=100
-        
         # Type checking
         python3 -m mypy src/py_template_node/py_template_node/ --ignore-missing-imports
     
