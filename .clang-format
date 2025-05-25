@@ -6,3 +6,19 @@ BreakBeforeBraces: Attach
 ColumnLimit: 80
 DerivePointerAlignment: true
 IndentWidth: 2
+
+BraceWrapping:
+  AfterClass: true     
+  AfterControlStatement: false
+  AfterEnum: true
+  AfterFunction: true
+  AfterStruct: true
+  AfterUnion: true
+  AfterExternBlock: false
+  BeforeCatch: false
+  BeforeElse: false
+
+BreakBeforeBraces: Custom
+
+PointerAlignment: Left
+ReferenceAlignment: Left
