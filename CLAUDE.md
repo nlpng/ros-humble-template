@@ -3,61 +3,90 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Context
-This is a ROS 2 humble package template designed for containerized robotics development. The template creates a general-purpose foundation for ROS 2 projects using colcon build system with Docker containerization.
+**Dual-language ROS 2 humble template** with C++ and Python implementations, Docker containerization, and Foxglove visualization. Production-ready template for robotics development.
 
-## Architecture Overview
-- **ROS Framework**: ROS 2 humble with colcon build system
-- **Language**: C++ (primary)
-- **Containerization**: Docker with ros:humble-ros-base base image
-- **Networking**: Host networking mode for ROS communication
-- **Visualization**: Foxglove bridge integration with WebSocket support
-- **Package Pattern**: Standard ROS 2 workspace structure under `src/`
+## Architecture
+- **Languages**: C++ and Python (equivalent functionality)
+- **Framework**: ROS 2 humble with colcon build system
+- **Containers**: Docker multi-stage build with ros:humble-ros-base
+- **Networking**: Host networking for ROS communication
+- **Visualization**: Foxglove bridge (WebSocket port 8765)
+- **Deployment**: 4 Docker Compose profiles (default, python, dual, multi-node)
 
-## Essential Commands
+## Quick Commands
 ```bash
-# Build ROS package with colcon
-colcon build
+# Build workspace
+colcon build --symlink-install && source install/setup.bash
 
-# Source the workspace
-source install/setup.bash
+# Docker deployment options
+docker compose up                    # C++ only (default)
+docker compose --profile python up  # Python only
+docker compose --profile dual up    # Both languages
 
-# Build Docker image
+# Manual Docker build
 docker build -t ros-template:humble .
 
-# Run with Docker Compose
-docker-compose up
-
-# Launch ROS nodes
-ros2 launch <package_name> <launch_file>
+# Launch nodes individually
+ros2 launch ros_template_node template.launch.py      # C++
+ros2 launch py_template_node py_template.launch.py    # Python
 ```
 
-## Development Patterns
-- **Node Structure**: Implement publishers, subscribers, and timer-based operations
-- **Message Handling**: Use appropriate queue sizes based on message frequency
-- **Resource Management**: Use RAII with smart pointers (`std::shared_ptr`, `std::unique_ptr`)
-- **Real-time Constraints**: Always consider robotics real-time requirements
+## Package Structure
+```
+src/
+├── ros_template_node/     # C++ package (ament_cmake)
+└── py_template_node/      # Python package (ament_python)
+```
 
-## Docker Requirements
-- Always use `--network host` for ROS communication between containers
-- Rebuild Docker image when adding new dependencies
-- Install packages in Dockerfile, not in running containers
-- Use multi-stage builds for optimization
+## Development Rules
+- **File Size**: Max 500 lines; refactor if needed
+- **Dependencies**: Add to package.xml + CMakeLists.txt (C++) or setup.py (Python)
+- **Docker**: Rebuild image after dependency changes
+- **Testing**: Verify both languages work independently and together
 
-## File Management
-- Keep C++ files under 500 lines; refactor into modules if needed
-- Use `#pragma once` for header guards
-- Follow task tracking in TASK.md
-- Update PLANNING.md for architectural changes
+## Language-Specific Patterns
 
-## C++ Standards
-- Use modern C++ features: auto, range-based loops, structured bindings
-- Prefer smart pointers over raw pointers
-- Implement proper constructor/destructor patterns for resource management
+### C++ (`ros_template_node`)
+- Use modern C++17: `auto`, smart pointers, range-based loops
+- RAII for resource management
+- Default topic prefix: `template`, rate: 2.0 Hz
+
+### Python (`py_template_node`)  
+- Follow PEP 8 style guidelines
+- Use type hints where beneficial
+- Default topic prefix: `py_template`, rate: 1.0 Hz
+
+## Workflow Rules
+### 📋 Task Management
+- Read `PLANNING.md` and `TASK.md` before starting work
+- Add new tasks to `TASK.md` with date stamps
+- Mark tasks complete immediately after finishing
+
+### 🔧 Code Changes
+- Test both C++ and Python implementations when making changes
+- Update documentation for new features or dependencies
+- Verify all Docker Compose profiles work after modifications
+
+### 🐳 Docker Best Practices
+- Use `--network host` for ROS communication
+- Install dependencies in Dockerfile, not running containers
+- Test image builds after package changes
+
+### 📚 Documentation
+- Update README.md for new features or setup changes
+- Comment complex logic explaining "why", not "what"
+- Ensure mid-level developers can understand the code
+
+### 🚨 Critical Rules
+- Never assume library availability - verify first
+- Confirm file paths exist before referencing
+- Ask questions if context is unclear
+- Don't delete code unless explicitly instructed
 
 ## Basic Rules
 ### 🔄 Project Awareness & Context
 - **Always read `PLANNING.md`** at the start of a new conversation to understand the project's architecture, goals, style, and constraints.
-- **Check `TASK.md`** before starting a new task. If the task isn’t listed, add it with a brief description and today's date.
+- **Check `TASK.md`** before starting a new task. If the task isn't listed, add it with a brief description and today's date.
 - **Use consistent naming conventions, file structure, and architecture patterns** as described in `PLANNING.md`.
 
 ### 🧱 Code Structure & Modularity
@@ -66,7 +95,7 @@ ros2 launch <package_name> <launch_file>
 
 ### ✅ Task Completion
 - **Mark completed tasks in `TASK.md`** immediately after finishing them.
-- Add new sub-tasks or TODOs discovered during development to `TASK.md` under a “Discovered During Work” section.
+- Add new sub-tasks or TODOs discovered during development to `TASK.md` under a "Discovered During Work" section.
 
 ### 📚 Documentation & Explainability
 - **Update `README.md`** when new features are added, dependencies change, or setup steps are modified.
