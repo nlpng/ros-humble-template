@@ -15,20 +15,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Quick Commands
 ```bash
-# Build workspace
-colcon build --symlink-install && source install/setup.bash
-
-# Docker deployment options
+# Docker deployment options (primary method)
 docker compose up                    # C++ only (default)
 docker compose --profile python up  # Python only
 docker compose --profile dual up    # Both languages
 
-# Manual Docker build
+# Manual Docker build and test
 docker build -t ros-template:humble .
+./test_docker.sh                    # Run comprehensive tests
 
-# Launch nodes individually
-ros2 launch ros_template_node template.launch.py      # C++
-ros2 launch py_template_node py_template.launch.py    # Python
+# Native ROS 2 (if colcon available locally)
+colcon build --cmake-args -DBUILD_TESTING=ON
+source install/setup.bash
+colcon test && colcon test-result --verbose
+
+# Launch nodes individually (in Docker container)
+docker exec -it ros_template_node ros2 launch ros_template_node template.launch.py
 ```
 
 ## Package Structure

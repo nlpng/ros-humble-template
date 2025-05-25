@@ -162,28 +162,34 @@ ros2 launch py_template_node py_template.launch.py \
 
 ## Development
 
-### Building Locally
+### Building and Testing Locally
 
-1. **Install dependencies**:
-   ```bash
-   rosdep install --from-paths src --ignore-src -r -y
-   ```
+**Using Docker (Recommended)**:
+```bash
+# Build and test everything
+./test_docker.sh
 
-2. **Build with colcon**:
-   ```bash
-   colcon build --symlink-install
-   ```
+# Or manually build for testing
+docker build -t ros-template:humble .
+```
 
-3. **Source and run**:
-   ```bash
-   source install/setup.bash
-   
-   # Run C++ node
-   ros2 run ros_template_node template_node
-   
-   # Run Python node
-   ros2 run py_template_node py_template_node
-   ```
+**Native ROS 2 (if available)**:
+```bash
+# Install dependencies
+rosdep install --from-paths src --ignore-src -r -y
+
+# Build with testing
+colcon build --cmake-args -DBUILD_TESTING=ON
+
+# Run tests
+source install/setup.bash
+colcon test
+colcon test-result --verbose
+
+# Run nodes
+ros2 run ros_template_node template_node
+ros2 run py_template_node py_template_node
+```
 
 ### Customization
 
