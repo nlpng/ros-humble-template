@@ -15,6 +15,17 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
     stdin_open: true
     tty: true
+    healthcheck:
+      test: >
+        bash -c "
+        ros2 node list | grep -q template_node &&
+        ros2 topic list | grep -q /template/status &&
+        ros2 topic echo /template/status --once --timeout 5 >/dev/null 2>&1
+        "
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
     command: >
       ros2 launch ros_template_node template.launch.py
       publish_rate:=2.0
@@ -38,6 +49,17 @@ services:
     tty: true
     profiles:
       - python
+    healthcheck:
+      test: >
+        bash -c "
+        ros2 node list | grep -q py_template_node &&
+        ros2 topic list | grep -q /py_template/status &&
+        ros2 topic echo /py_template/status --once --timeout 5 >/dev/null 2>&1
+        "
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
     command: >
       ros2 launch py_template_node py_template.launch.py
       publish_rate:=1.5
@@ -60,6 +82,17 @@ services:
     tty: true
     profiles:
       - multi-node
+    healthcheck:
+      test: >
+        bash -c "
+        ros2 node list | grep -q template_node &&
+        ros2 topic list | grep -q /template_fast/status &&
+        ros2 topic echo /template_fast/status --once --timeout 5 >/dev/null 2>&1
+        "
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
     command: >
       ros2 launch ros_template_node template.launch.py
       publish_rate:=10.0
@@ -82,6 +115,20 @@ services:
     tty: true
     profiles:
       - dual
+    healthcheck:
+      test: >
+        bash -c "
+        ros2 node list | grep -q template_node &&
+        ros2 node list | grep -q py_template_node &&
+        ros2 topic list | grep -q /cpp_template/status &&
+        ros2 topic list | grep -q /py_template/status &&
+        ros2 topic echo /cpp_template/status --once --timeout 5 >/dev/null 2>&1 &&
+        ros2 topic echo /py_template/status --once --timeout 5 >/dev/null 2>&1
+        "
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 20s
     command: >
       bash -c "
       ros2 launch ros_template_node template.launch.py 
