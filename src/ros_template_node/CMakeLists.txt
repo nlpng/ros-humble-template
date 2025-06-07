@@ -11,6 +11,7 @@ find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(diagnostic_msgs REQUIRED)
 
 # Create library for testing
 add_library(${PROJECT_NAME} src/template_node.cpp)
@@ -30,6 +31,7 @@ ament_target_dependencies(
   "std_msgs"
   "geometry_msgs"
   "sensor_msgs"
+  "diagnostic_msgs"
 )
 
 # Create executable
@@ -59,6 +61,7 @@ if(BUILD_TESTING)
       "std_msgs"
       "geometry_msgs"
       "sensor_msgs"
+      "diagnostic_msgs"
     )
   endif()
 
@@ -71,6 +74,7 @@ if(BUILD_TESTING)
       "std_msgs"
       "geometry_msgs"
       "sensor_msgs"
+      "diagnostic_msgs"
     )
   endif()
 endif()
