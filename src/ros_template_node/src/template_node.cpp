@@ -2,7 +2,8 @@
 
 #include <cmath>
 
-TemplateNode::TemplateNode() : Node("template_node"), count_(0), start_time_(this->get_clock()->now())
+TemplateNode::TemplateNode()
+    : Node("template_node"), count_(0), start_time_(this->get_clock()->now())
 {
   // Declare parameters with default values
   this->declare_parameter("publish_rate", 1.0);
@@ -39,8 +40,9 @@ TemplateNode::TemplateNode() : Node("template_node"), count_(0), start_time_(thi
       timer_period, std::bind(&TemplateNode::timer_callback, this));
 
   // Create health timer (30 seconds)
-  health_timer_ = this->create_wall_timer(
-      std::chrono::seconds(30), std::bind(&TemplateNode::health_callback, this));
+  health_timer_ =
+      this->create_wall_timer(std::chrono::seconds(30),
+                              std::bind(&TemplateNode::health_callback, this));
 
   RCLCPP_INFO(this->get_logger(),
               "Template node initialized with rate: %.2f Hz", publish_rate);
@@ -84,19 +86,19 @@ void TemplateNode::health_callback()
   health_msg.name = this->get_name();
   health_msg.message = "Node operational";
   health_msg.hardware_id = "template_node_container";
-  
+
   auto uptime = (this->get_clock()->now() - start_time_).seconds();
-  
+
   diagnostic_msgs::msg::KeyValue uptime_kv;
   uptime_kv.key = "uptime_seconds";
   uptime_kv.value = std::to_string(static_cast<int>(uptime));
   health_msg.values.push_back(uptime_kv);
-  
+
   diagnostic_msgs::msg::KeyValue count_kv;
   count_kv.key = "message_count";
   count_kv.value = std::to_string(count_);
   health_msg.values.push_back(count_kv);
-  
+
   health_publisher_->publish(health_msg);
 }
 
