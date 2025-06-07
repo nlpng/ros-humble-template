@@ -64,7 +64,7 @@ jobs:
         # Check container is healthy
         docker exec ros_template_node bash -c "source /opt/ros/humble/setup.bash && ros2 node list" | grep -q template_node
         docker exec ros_template_node bash -c "source /opt/ros/humble/setup.bash && ros2 topic list" | grep -q "/template/status"
-        docker exec ros_template_node bash -c "source /opt/ros/humble/setup.bash && timeout 10 ros2 topic echo /template/status --once" >/dev/null
+        docker exec ros_template_node bash -c "source /opt/ros/humble/setup.bash && timeout 10 ros2 topic echo /template/status --once" >/dev/null 2>&1
         
         echo "✅ Docker health monitoring working"
         docker compose down
