@@ -191,6 +191,38 @@ ros2 run ros_template_node template_node
 ros2 run py_template_node py_template_node
 ```
 
+### Code Formatting
+
+This project uses clang-format for C++ code consistency and black for Python formatting.
+
+**C++ Code Formatting:**
+```bash
+# Check C++ formatting (what CI runs)
+find src/ros_template_node -name "*.cpp" -o -name "*.hpp" | xargs clang-format --dry-run --Werror
+
+# Apply C++ formatting automatically
+find src/ros_template_node -name "*.cpp" -o -name "*.hpp" | xargs clang-format -i
+
+# Or format specific files
+clang-format -i src/ros_template_node/src/template_node.cpp
+clang-format -i src/ros_template_node/include/ros_template_node/template_node.hpp
+```
+
+**Python Code Formatting:**
+```bash
+# Check Python formatting (what CI runs)
+python3 -m black --check src/py_template_node/
+python3 -m flake8 src/py_template_node/ --max-line-length=88
+
+# Apply Python formatting automatically
+python3 -m black src/py_template_node/
+```
+
+**Configuration:**
+- C++ formatting follows `.clang-format` configuration (Google style with custom modifications)
+- Python formatting uses black with 88 character line limit
+- Both are enforced in CI/CD pipeline
+
 ### Customization
 
 This template can be easily adapted for other projects:
