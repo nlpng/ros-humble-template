@@ -22,7 +22,7 @@ services:
         source /opt/ros/humble/setup.bash &&
         ros2 node list | grep -q template_node &&
         ros2 topic list | grep -q /template/status &&
-        ros2 topic echo /template/status --once --timeout 5 >/dev/null 2>&1
+        ros2 topic echo /template/status --once >/dev/null 2>&1
         "
       interval: 30s
       timeout: 10s
@@ -55,7 +55,7 @@ services:
         source /opt/ros/humble/setup.bash &&
         ros2 node list | grep -q py_template_node &&
         ros2 topic list | grep -q /py_template/status &&
-        ros2 topic echo /py_template/status --once --timeout 5 >/dev/null 2>&1
+        ros2 topic echo /py_template/status --once >/dev/null 2>&1
         "
       interval: 30s
       timeout: 10s
