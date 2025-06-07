@@ -58,7 +58,7 @@ jobs:
         docker build -t ros-template:humble .
         
         # Test default profile with health monitoring
-        docker compose up -d
+        docker compose up -d cpp_node
         sleep 20
         
         # Check container is healthy
