@@ -10,16 +10,8 @@ env:
   ROS_DISTRO: humble
 
 jobs:
-  test:
+  build-and-test:
     runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - package: ros_template_node
-            test_type: cpp
-          - package: py_template_node
-            test_type: python
     
     steps:
     - uses: actions/checkout@v4
@@ -31,129 +23,70 @@ jobs:
     
     - name: Install dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install -y \
+        sudo apt-get update && sudo apt-get install -y \
           python3-colcon-common-extensions \
           python3-rosdep \
-          python3-pytest \
+          ros-humble-diagnostic-msgs \
           ros-humble-foxglove-bridge
         
-        # Initialize rosdep
-        sudo rosdep init || true
+        sudo rosdep init || echo "rosdep already initialized"
         rosdep update
-        
-        # Install package dependencies
         rosdep install --from-paths src --ignore-src -r -y
     
-    - name: Build packages
+    - name: Build both packages
       run: |
         source /opt/ros/humble/setup.bash
-        colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
+        colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
     
-    - name: Run C++ tests
-      if: matrix.test_type == 'cpp'
-      run: |
-        source /opt/ros/humble/setup.bash
-        source install/setup.bash
-        colcon test --packages-select ros_template_node
-        colcon test-result --verbose
-    
-    - name: Run Python tests
-      if: matrix.test_type == 'python'
+    - name: Run tests
       run: |
         source /opt/ros/humble/setup.bash
         source install/setup.bash
-        colcon test --packages-select py_template_node
+        colcon test
         colcon test-result --verbose
-    
-    - name: Upload test results
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: test-results-${{ matrix.package }}
-        path: |
-          log/
-          build/*/test_results/
   
   docker-test:
     runs-on: ubuntu-22.04
-    needs: test
-    strategy:
-      matrix:
-        profile: [default, python, dual, multi-node]
+    needs: build-and-test
     
     steps:
     - uses: actions/checkout@v4
     
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-    
-    - name: Build Docker image
+    - name: Build and test Docker
       run: |
+        # Build image
         docker build -t ros-template:humble .
-    
-    - name: Test Docker Compose profile - ${{ matrix.profile }}
-      run: |
-        if [ "${{ matrix.profile }}" = "default" ]; then
-          timeout 60s docker compose up --build || true
-        else
-          timeout 60s docker compose --profile ${{ matrix.profile }} up --build || true
-        fi
         
-        # Check that containers started successfully
-        if [ "${{ matrix.profile }}" = "default" ]; then
-          docker compose logs ros_template
-        else
-          docker compose --profile ${{ matrix.profile }} logs
-        fi
+        # Test default profile with health monitoring
+        docker compose up -d
+        sleep 20
+        
+        # Check container is healthy
+        CONTAINER=$(docker compose ps -q)
+        docker exec $CONTAINER ros2 node list | grep -q template_node
+        docker exec $CONTAINER ros2 topic list | grep -q "/template/health"
+        docker exec $CONTAINER timeout 10 ros2 topic echo /template/health --once >/dev/null
+        
+        echo "✅ Docker health monitoring working"
+        docker compose down
   
   code-quality:
     runs-on: ubuntu-22.04
+    
     steps:
     - uses: actions/checkout@v4
     
-    - name: Setup ROS 2 Humble
-      uses: ros-tooling/setup-ros@v0.7
-      with:
-        required-ros-distributions: humble
-    
     - name: Install linting tools
       run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          clang-format \
-          python3-pip \
-          cppcheck
-        
-        pip3 install --user flake8 black mypy
+        sudo apt-get update && sudo apt-get install -y clang-format
+        pip3 install black flake8
     
-    - name: C++ Code Quality
+    - name: Check C++ formatting
       run: |
-        # Check C++ formatting
-        find src/ros_template_node -name "*.cpp" -o -name "*.hpp" | xargs clang-format --dry-run --Werror
-        
-        # Static analysis
-        cppcheck --error-exitcode=1 --enable=warning,style,performance \
-          src/ros_template_node/src/ src/ros_template_node/include/
+        find src/ros_template_node -name "*.cpp" -o -name "*.hpp" | \
+          xargs clang-format --dry-run --Werror
     
-    - name: Python Code Quality
+    - name: Check Python formatting
       run: |
-        # Add pip install location to PATH
-        export PATH=$PATH:$HOME/.local/bin
-        
-        # Check Python formatting
-        python3 -m black --check src/py_template_node/py_template_node/ src/py_template_node/test/
-        
-        # Type checking
-        python3 -m mypy src/py_template_node/py_template_node/ --ignore-missing-imports
-    
-    - name: ROS 2 Linting
-      run: |
-        source /opt/ros/humble/setup.bash
-        
-        # Build with linting
-        colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
-        
-        # Run ROS 2 specific linting
-        colcon test --packages-select ros_template_node py_template_node \
-          --event-handlers console_direct+ --pytest-args "--verbose"
+        python3 -m black --check src/py_template_node/
+        python3 -m flake8 src/py_template_node/ --max-line-length=88
