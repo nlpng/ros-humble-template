@@ -11,14 +11,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Containers**: Docker multi-stage build with ros:humble-ros-base
 - **Networking**: Host networking for ROS communication
 - **Visualization**: Foxglove bridge (WebSocket port 8765)
-- **Deployment**: 4 Docker Compose profiles (default, python, dual, multi-node)
+- **Deployment**: 3 Docker Compose profiles (default, python, foxglove)
 
 ## Quick Commands
 ```bash
 # Docker deployment options (primary method)
-docker compose up                    # C++ only (default)
-docker compose --profile python up  # Python only
-docker compose --profile dual up    # Both languages
+docker compose up                     # C++ only (default)
+docker compose --profile python up   # Python only
+docker compose --profile foxglove up # Foxglove bridge for visualization
 
 # Manual Docker build and test
 docker build -t ros-template:humble .

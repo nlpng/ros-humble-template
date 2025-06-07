@@ -19,6 +19,7 @@ services:
     healthcheck:
       test: >
         bash -c "
+        source /opt/ros/humble/setup.bash &&
         ros2 node list | grep -q template_node &&
         ros2 topic list | grep -q /template/status &&
         ros2 topic echo /template/status --once --timeout 5 >/dev/null 2>&1
@@ -31,8 +32,6 @@ services:
       ros2 launch ros_template_node template.launch.py
       publish_rate:=2.0
       topic_prefix:=template
-      enable_foxglove:=true
-      foxglove_port:=8765
 
   # Python template node
   python_node:
@@ -53,6 +52,7 @@ services:
     healthcheck:
       test: >
         bash -c "
+        source /opt/ros/humble/setup.bash &&
         ros2 node list | grep -q py_template_node &&
         ros2 topic list | grep -q /py_template/status &&
         ros2 topic echo /py_template/status --once --timeout 5 >/dev/null 2>&1
@@ -65,4 +65,33 @@ services:
       ros2 launch py_template_node py_template.launch.py
       publish_rate:=1.5
       topic_prefix:=py_template
-      enable_foxglove:=false
+
+  # Foxglove bridge for visualization (separate service)
+  foxglove:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ros-template:humble
+    container_name: foxglove_bridge
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      - ROS_DOMAIN_ID=0
+      - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+    stdin_open: true
+    tty: true
+    profiles:
+      - foxglove
+    healthcheck:
+      test: >
+        bash -c "
+        source /opt/ros/humble/setup.bash &&
+        ros2 node list | grep -q foxglove_bridge
+        "
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    command: >
+      ros2 launch foxglove_bridge foxglove_bridge_launch.xml
+      port:=8765

@@ -66,4 +66,4 @@ EXPOSE 8765
 ENTRYPOINT ["/entrypoint.sh"]
 
 # Default command
-CMD ["ros2", "launch", "ros_template_node", "template.launch.py"]
+CMD ["/bin/bash"]
