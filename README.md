@@ -212,7 +212,6 @@ clang-format -i src/ros_template_node/include/ros_template_node/template_node.hp
 ```bash
 # Check Python formatting (what CI runs)
 python3 -m black --check src/py_template_node/
-python3 -m flake8 src/py_template_node/ --max-line-length=88
 
 # Apply Python formatting automatically
 python3 -m black src/py_template_node/
@@ -220,7 +219,7 @@ python3 -m black src/py_template_node/
 
 **Configuration:**
 - C++ formatting follows `.clang-format` configuration (Google style with custom modifications)
-- Python formatting uses black with 88 character line limit
+- Python formatting uses black with default 88 character line limit
 - Both are enforced in CI/CD pipeline
 
 ### Customization

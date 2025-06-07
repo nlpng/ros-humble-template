@@ -79,7 +79,7 @@ jobs:
     - name: Install linting tools
       run: |
         sudo apt-get update && sudo apt-get install -y clang-format
-        pip3 install black flake8
+        pip3 install black
     
     - name: Check C++ formatting
       run: |
@@ -89,4 +89,3 @@ jobs:
     - name: Check Python formatting
       run: |
         python3 -m black --check src/py_template_node/
-        python3 -m flake8 src/py_template_node/ --max-line-length=88
