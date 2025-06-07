@@ -21,7 +21,6 @@ def generate_launch_description():
         description="Prefix for all topics published by the Python template node",
     )
 
-
     # Python template node
     py_template_node = Node(
         package="py_template_node",
@@ -36,7 +35,6 @@ def generate_launch_description():
         output="screen",
         emulate_tty=True,
     )
-
 
     return LaunchDescription(
         [
