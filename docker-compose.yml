@@ -7,6 +7,7 @@ services:
     image: ros-template:humble
     container_name: ros_template_node
     network_mode: host
+    ipc: host
     restart: unless-stopped
     environment:
       - ROS_DOMAIN_ID=0
@@ -41,6 +42,7 @@ services:
     image: ros-template:humble
     container_name: py_template_node
     network_mode: host
+    ipc: host
     restart: unless-stopped
     environment:
       - ROS_DOMAIN_ID=0
@@ -74,6 +76,7 @@ services:
     image: ros-template:humble
     container_name: foxglove_bridge
     network_mode: host
+    ipc: host
     restart: unless-stopped
     environment:
       - ROS_DOMAIN_ID=0
