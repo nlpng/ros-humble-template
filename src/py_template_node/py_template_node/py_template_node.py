@@ -104,19 +104,19 @@ class PyTemplateNode(Node):
         health_msg.name = self.get_name()
         health_msg.message = "Node operational"
         health_msg.hardware_id = "py_template_node_container"
-        
+
         uptime = (self.get_clock().now() - self.start_time).nanoseconds / 1e9
-        
+
         uptime_kv = KeyValue()
         uptime_kv.key = "uptime_seconds"
         uptime_kv.value = str(int(uptime))
         health_msg.values.append(uptime_kv)
-        
+
         count_kv = KeyValue()
         count_kv.key = "message_count"
         count_kv.value = str(self.count)
         health_msg.values.append(count_kv)
-        
+
         self.health_publisher.publish(health_msg)
 
     def cmd_callback(self, msg):
