@@ -80,8 +80,6 @@ services:
       - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
     stdin_open: true
     tty: true
-    profiles:
-      - foxglove
     healthcheck:
       test: >
         bash -c "
