@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-TemplateNode::TemplateNode() : Node("template_node"), count_(0)
+TemplateNode::TemplateNode() : Node("template_node"), count_(0), start_time_(this->get_clock()->now())
 {
   // Declare parameters with default values
   this->declare_parameter("publish_rate", 1.0);
@@ -23,6 +23,10 @@ TemplateNode::TemplateNode() : Node("template_node"), count_(0)
       this->create_publisher<sensor_msgs::msg::Temperature>(
           topic_prefix + "/temperature", 10);
 
+  health_publisher_ =
+      this->create_publisher<diagnostic_msgs::msg::DiagnosticStatus>(
+          topic_prefix + "/health", 10);
+
   // Create subscriber
   cmd_subscription_ = this->create_subscription<geometry_msgs::msg::Twist>(
       topic_prefix + "/cmd_vel", 10,
@@ -33,6 +37,10 @@ TemplateNode::TemplateNode() : Node("template_node"), count_(0)
       std::chrono::milliseconds(static_cast<int>(1000.0 / publish_rate));
   timer_ = this->create_wall_timer(
       timer_period, std::bind(&TemplateNode::timer_callback, this));
+
+  // Create health timer (30 seconds)
+  health_timer_ = this->create_wall_timer(
+      std::chrono::seconds(30), std::bind(&TemplateNode::health_callback, this));
 
   RCLCPP_INFO(this->get_logger(),
               "Template node initialized with rate: %.2f Hz", publish_rate);
@@ -67,6 +75,29 @@ void TemplateNode::timer_callback()
   }
 
   count_++;
+}
+
+void TemplateNode::health_callback()
+{
+  auto health_msg = diagnostic_msgs::msg::DiagnosticStatus();
+  health_msg.level = diagnostic_msgs::msg::DiagnosticStatus::OK;
+  health_msg.name = this->get_name();
+  health_msg.message = "Node operational";
+  health_msg.hardware_id = "template_node_container";
+  
+  auto uptime = (this->get_clock()->now() - start_time_).seconds();
+  
+  diagnostic_msgs::msg::KeyValue uptime_kv;
+  uptime_kv.key = "uptime_seconds";
+  uptime_kv.value = std::to_string(static_cast<int>(uptime));
+  health_msg.values.push_back(uptime_kv);
+  
+  diagnostic_msgs::msg::KeyValue count_kv;
+  count_kv.key = "message_count";
+  count_kv.value = std::to_string(count_);
+  health_msg.values.push_back(count_kv);
+  
+  health_publisher_->publish(health_msg);
 }
 
 void TemplateNode::cmd_callback(const geometry_msgs::msg::Twist::SharedPtr msg)

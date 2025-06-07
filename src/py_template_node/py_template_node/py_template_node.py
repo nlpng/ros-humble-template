@@ -4,6 +4,7 @@
 import math
 
 import rclpy
+from diagnostic_msgs.msg import DiagnosticStatus, KeyValue
 from geometry_msgs.msg import Twist
 from rclpy.node import Node
 from sensor_msgs.msg import Temperature
@@ -29,8 +30,9 @@ class PyTemplateNode(Node):
             self.get_parameter("topic_prefix").get_parameter_value().string_value
         )
 
-        # Initialize counter
+        # Initialize counter and start time
         self.count = 0
+        self.start_time = self.get_clock().now()
 
         # Create publishers
         self.string_publisher = self.create_publisher(
@@ -45,6 +47,10 @@ class PyTemplateNode(Node):
             Temperature, f"{topic_prefix}/temperature", 10
         )
 
+        self.health_publisher = self.create_publisher(
+            DiagnosticStatus, f"{topic_prefix}/health", 10
+        )
+
         # Create subscriber
         self.cmd_subscription = self.create_subscription(
             Twist, f"{topic_prefix}/cmd_vel", self.cmd_callback, 10
@@ -53,6 +59,9 @@ class PyTemplateNode(Node):
         # Create timer
         timer_period = 1.0 / publish_rate
         self.timer = self.create_timer(timer_period, self.timer_callback)
+
+        # Create health timer (30 seconds)
+        self.health_timer = self.create_timer(30.0, self.health_callback)
 
         self.get_logger().info(
             f"Python template node initialized with rate: {publish_rate:.2f} Hz"
@@ -87,6 +96,28 @@ class PyTemplateNode(Node):
             )
 
         self.count += 1
+
+    def health_callback(self):
+        """Publish node health status."""
+        health_msg = DiagnosticStatus()
+        health_msg.level = DiagnosticStatus.OK
+        health_msg.name = self.get_name()
+        health_msg.message = "Node operational"
+        health_msg.hardware_id = "py_template_node_container"
+        
+        uptime = (self.get_clock().now() - self.start_time).nanoseconds / 1e9
+        
+        uptime_kv = KeyValue()
+        uptime_kv.key = "uptime_seconds"
+        uptime_kv.value = str(int(uptime))
+        health_msg.values.append(uptime_kv)
+        
+        count_kv = KeyValue()
+        count_kv.key = "message_count"
+        count_kv.value = str(self.count)
+        health_msg.values.append(count_kv)
+        
+        self.health_publisher.publish(health_msg)
 
     def cmd_callback(self, msg):
         """Process received command velocity messages."""
