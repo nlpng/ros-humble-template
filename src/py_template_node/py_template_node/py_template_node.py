@@ -10,6 +10,7 @@ from rclpy.node import Node
 from sensor_msgs.msg import Temperature
 from std_msgs.msg import Int32, String
 from .structured_logger import StructuredLogger, Component, EventType
+from .performance_monitor import PerformanceMonitor
 
 
 class PyTemplateNode(Node):
@@ -37,6 +38,9 @@ class PyTemplateNode(Node):
         
         # Initialize structured logger
         self.structured_logger = StructuredLogger("py_template_node")
+        
+        # Initialize performance monitor
+        self.performance_monitor = PerformanceMonitor(self)
 
         # Create publishers
         self.string_publisher = self.create_publisher(
@@ -84,6 +88,9 @@ class PyTemplateNode(Node):
 
     def timer_callback(self):
         """Publish data periodically via timer callback."""
+        # Record callback timing
+        self.performance_monitor.record_callback_start()
+        
         # Log timer event
         timer_context = {"count": self.count}
         self.structured_logger.debug(
@@ -95,11 +102,13 @@ class PyTemplateNode(Node):
         status_msg = String()
         status_msg.data = f"Python template node running - count: {self.count}"
         self.string_publisher.publish(status_msg)
+        self.performance_monitor.record_publish("py_template/status")
 
         # Publish counter
         counter_msg = Int32()
         counter_msg.data = self.count
         self.counter_publisher.publish(counter_msg)
+        self.performance_monitor.record_publish("py_template/counter")
 
         # Publish simulated temperature data
         temp_msg = Temperature()
@@ -110,6 +119,7 @@ class PyTemplateNode(Node):
         )  # Simulated temperature
         temp_msg.variance = 0.1
         self.temperature_publisher.publish(temp_msg)
+        self.performance_monitor.record_publish("py_template/temperature")
 
         if self.count % 10 == 0:
             publish_context = {
@@ -127,6 +137,9 @@ class PyTemplateNode(Node):
             )
 
         self.count += 1
+        
+        # Record callback timing end
+        self.performance_monitor.record_callback_end()
 
     def health_callback(self):
         """Publish node health status."""
@@ -163,6 +176,9 @@ class PyTemplateNode(Node):
 
     def cmd_callback(self, msg):
         """Process received command velocity messages."""
+        # Record message received
+        self.performance_monitor.record_message_received("py_template/cmd_vel")
+        
         # Log structured command reception
         cmd_context = {
             "linear_x": msg.linear.x,

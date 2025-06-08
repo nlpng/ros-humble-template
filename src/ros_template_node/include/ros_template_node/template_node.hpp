@@ -12,6 +12,7 @@
 #include "std_msgs/msg/int32.hpp"
 #include "std_msgs/msg/string.hpp"
 #include "ros_template_node/structured_logger.hpp"
+#include "ros_template_node/performance_monitor.hpp"
 
 class TemplateNode : public rclcpp::Node
 {
@@ -44,4 +45,7 @@ private:
   
   // Structured logger
   std::unique_ptr<ros_template_node::StructuredLogger> structured_logger_;
+  
+  // Performance monitor
+  std::unique_ptr<ros_template_node::PerformanceMonitor> performance_monitor_;
 };

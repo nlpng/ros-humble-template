@@ -14,8 +14,8 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python structured logging dependencies
-RUN pip3 install structlog python-json-logger
+# Install Python structured logging and performance monitoring dependencies
+RUN pip3 install structlog python-json-logger psutil
 
 # Create workspace
 WORKDIR /ros2_ws
@@ -44,8 +44,8 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python structured logging dependencies in runtime stage
-RUN pip3 install structlog python-json-logger
+# Install Python structured logging and performance monitoring dependencies in runtime stage
+RUN pip3 install structlog python-json-logger psutil
 
 # Create workspace
 WORKDIR /ros2_ws

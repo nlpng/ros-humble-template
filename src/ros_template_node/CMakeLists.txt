@@ -17,7 +17,7 @@ pkg_check_modules(SPDLOG REQUIRED spdlog)
 find_package(nlohmann_json REQUIRED)
 
 # Create library for testing
-add_library(${PROJECT_NAME} src/template_node.cpp src/structured_logger.cpp)
+add_library(${PROJECT_NAME} src/template_node.cpp src/structured_logger.cpp src/performance_monitor.cpp)
 
 # Include directories for library
 target_include_directories(${PROJECT_NAME} PUBLIC

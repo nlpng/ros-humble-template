@@ -7,6 +7,9 @@ TemplateNode::TemplateNode()
 {
   // Initialize structured logger
   structured_logger_ = std::make_unique<ros_template_node::StructuredLogger>("template_node");
+  
+  // Initialize performance monitor
+  performance_monitor_ = std::make_unique<ros_template_node::PerformanceMonitor>(this);
   // Declare parameters with default values
   this->declare_parameter("publish_rate", 1.0);
   this->declare_parameter("topic_prefix", "template");
@@ -62,6 +65,9 @@ TemplateNode::TemplateNode()
 
 void TemplateNode::timer_callback()
 {
+  // Record callback timing
+  performance_monitor_->record_callback_start();
+  
   // Log timer event
   nlohmann::json timer_context;
   timer_context["count"] = count_;
@@ -73,11 +79,13 @@ void TemplateNode::timer_callback()
   auto status_msg = std_msgs::msg::String();
   status_msg.data = "Template node running - count: " + std::to_string(count_);
   string_publisher_->publish(status_msg);
+  performance_monitor_->record_publish("template/status");
 
   // Publish counter
   auto counter_msg = std_msgs::msg::Int32();
   counter_msg.data = count_;
   counter_publisher_->publish(counter_msg);
+  performance_monitor_->record_publish("template/counter");
 
   // Publish simulated temperature data
   auto temp_msg = sensor_msgs::msg::Temperature();
@@ -87,6 +95,7 @@ void TemplateNode::timer_callback()
       20.0 + 5.0 * std::sin(count_ * 0.1);  // Simulated temperature
   temp_msg.variance = 0.1;
   temperature_publisher_->publish(temp_msg);
+  performance_monitor_->record_publish("template/temperature");
 
   if (count_ % 10 == 0) {
     nlohmann::json publish_context;
@@ -102,6 +111,9 @@ void TemplateNode::timer_callback()
   }
 
   count_++;
+  
+  // Record callback timing end
+  performance_monitor_->record_callback_end();
 }
 
 void TemplateNode::health_callback()
@@ -138,6 +150,9 @@ void TemplateNode::health_callback()
 
 void TemplateNode::cmd_callback(const geometry_msgs::msg::Twist::SharedPtr msg)
 {
+  // Record message received
+  performance_monitor_->record_message_received("template/cmd_vel");
+  
   // Log structured command reception
   nlohmann::json cmd_context;
   cmd_context["linear_x"] = msg->linear.x;

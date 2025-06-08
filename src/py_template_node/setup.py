@@ -11,7 +11,7 @@ setup(
         ("share/" + package_name, ["package.xml"]),
         ("share/" + package_name + "/launch", ["launch/py_template.launch.py"]),
     ],
-    install_requires=["setuptools", "structlog", "python-json-logger"],
+    install_requires=["setuptools", "structlog", "python-json-logger", "psutil"],
     extras_require={
         "test": ["pytest"],
     },

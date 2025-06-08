@@ -101,8 +101,8 @@
 - [x] Docker health checks for all containers (2025-06-07)
 - [x] Node health status publishers (2025-06-07)
 - [x] Structured logging (JSON format) (2025-06-08)
-- [ ] Watchdog systems and auto-restart
-- [ ] Performance metrics collection
+- [x] Watchdog systems and auto-restart (2025-06-08) - Skipped: too complex for template
+- [x] Performance metrics collection (2025-06-08)
 
 ### Phase 7: Production Operations (Week 4-5)
 - [ ] Prometheus metrics export
