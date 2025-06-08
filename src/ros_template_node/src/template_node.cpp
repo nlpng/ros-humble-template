@@ -6,10 +6,12 @@ TemplateNode::TemplateNode()
     : Node("template_node"), count_(0), start_time_(this->get_clock()->now())
 {
   // Initialize structured logger
-  structured_logger_ = std::make_unique<ros_template_node::StructuredLogger>("template_node");
-  
+  structured_logger_ =
+      std::make_unique<ros_template_node::StructuredLogger>("template_node");
+
   // Initialize performance monitor
-  performance_monitor_ = std::make_unique<ros_template_node::PerformanceMonitor>(this);
+  performance_monitor_ =
+      std::make_unique<ros_template_node::PerformanceMonitor>(this);
   // Declare parameters with default values
   this->declare_parameter("publish_rate", 1.0);
   this->declare_parameter("topic_prefix", "template");
@@ -53,10 +55,11 @@ TemplateNode::TemplateNode()
   nlohmann::json init_context;
   init_context["publish_rate"] = publish_rate;
   init_context["topic_prefix"] = topic_prefix;
-  structured_logger_->info(ros_template_node::StructuredLogger::Component::STARTUP,
-                          ros_template_node::StructuredLogger::EventType::INITIALIZATION,
-                          "Template node initialized successfully", init_context);
-  
+  structured_logger_->info(
+      ros_template_node::StructuredLogger::Component::STARTUP,
+      ros_template_node::StructuredLogger::EventType::INITIALIZATION,
+      "Template node initialized successfully", init_context);
+
   RCLCPP_INFO(this->get_logger(),
               "Template node initialized with rate: %.2f Hz", publish_rate);
   RCLCPP_INFO(this->get_logger(), "Publishing to topics with prefix: %s",
@@ -67,14 +70,15 @@ void TemplateNode::timer_callback()
 {
   // Record callback timing
   performance_monitor_->record_callback_start();
-  
+
   // Log timer event
   nlohmann::json timer_context;
   timer_context["count"] = count_;
-  structured_logger_->debug(ros_template_node::StructuredLogger::Component::TIMER,
-                           ros_template_node::StructuredLogger::EventType::PUBLISH,
-                           "Timer callback executing", timer_context);
-  
+  structured_logger_->debug(
+      ros_template_node::StructuredLogger::Component::TIMER,
+      ros_template_node::StructuredLogger::EventType::PUBLISH,
+      "Timer callback executing", timer_context);
+
   // Publish status message
   auto status_msg = std_msgs::msg::String();
   status_msg.data = "Template node running - count: " + std::to_string(count_);
@@ -101,17 +105,19 @@ void TemplateNode::timer_callback()
     nlohmann::json publish_context;
     publish_context["count"] = count_;
     publish_context["temperature"] = temp_msg.temperature;
-    publish_context["topics"] = nlohmann::json::array({"status", "counter", "temperature"});
-    structured_logger_->info(ros_template_node::StructuredLogger::Component::TIMER,
-                            ros_template_node::StructuredLogger::EventType::PUBLISH,
-                            "Periodic data published", publish_context);
-    
+    publish_context["topics"] =
+        nlohmann::json::array({"status", "counter", "temperature"});
+    structured_logger_->info(
+        ros_template_node::StructuredLogger::Component::TIMER,
+        ros_template_node::StructuredLogger::EventType::PUBLISH,
+        "Periodic data published", publish_context);
+
     RCLCPP_INFO(this->get_logger(), "Published count: %zu, temp: %.2f°C",
                 count_, temp_msg.temperature);
   }
 
   count_++;
-  
+
   // Record callback timing end
   performance_monitor_->record_callback_end();
 }
@@ -119,16 +125,17 @@ void TemplateNode::timer_callback()
 void TemplateNode::health_callback()
 {
   auto uptime = (this->get_clock()->now() - start_time_).seconds();
-  
+
   // Log health check
   nlohmann::json health_context;
   health_context["uptime_seconds"] = static_cast<int>(uptime);
   health_context["message_count"] = count_;
   health_context["status"] = "operational";
-  structured_logger_->info(ros_template_node::StructuredLogger::Component::HEALTH,
-                          ros_template_node::StructuredLogger::EventType::HEALTH_CHECK,
-                          "Node health check completed", health_context);
-  
+  structured_logger_->info(
+      ros_template_node::StructuredLogger::Component::HEALTH,
+      ros_template_node::StructuredLogger::EventType::HEALTH_CHECK,
+      "Node health check completed", health_context);
+
   auto health_msg = diagnostic_msgs::msg::DiagnosticStatus();
   health_msg.level = diagnostic_msgs::msg::DiagnosticStatus::OK;
   health_msg.name = this->get_name();
@@ -152,7 +159,7 @@ void TemplateNode::cmd_callback(const geometry_msgs::msg::Twist::SharedPtr msg)
 {
   // Record message received
   performance_monitor_->record_message_received("template/cmd_vel");
-  
+
   // Log structured command reception
   nlohmann::json cmd_context;
   cmd_context["linear_x"] = msg->linear.x;
@@ -161,10 +168,11 @@ void TemplateNode::cmd_callback(const geometry_msgs::msg::Twist::SharedPtr msg)
   cmd_context["angular_x"] = msg->angular.x;
   cmd_context["angular_y"] = msg->angular.y;
   cmd_context["angular_z"] = msg->angular.z;
-  structured_logger_->debug(ros_template_node::StructuredLogger::Component::SUBSCRIBER,
-                           ros_template_node::StructuredLogger::EventType::RECEIVE,
-                           "Command velocity received", cmd_context);
-  
+  structured_logger_->debug(
+      ros_template_node::StructuredLogger::Component::SUBSCRIBER,
+      ros_template_node::StructuredLogger::EventType::RECEIVE,
+      "Command velocity received", cmd_context);
+
   RCLCPP_INFO(this->get_logger(),
               "Received cmd_vel - linear: [%.2f, %.2f, %.2f], angular: [%.2f, "
               "%.2f, %.2f]",
@@ -177,9 +185,10 @@ void TemplateNode::cmd_callback(const geometry_msgs::msg::Twist::SharedPtr msg)
     movement_context["is_moving"] = true;
     movement_context["linear_x"] = msg->linear.x;
     movement_context["angular_z"] = msg->angular.z;
-    structured_logger_->info(ros_template_node::StructuredLogger::Component::SUBSCRIBER,
-                            ros_template_node::StructuredLogger::EventType::RECEIVE,
-                            "Robot movement detected", movement_context);
+    structured_logger_->info(
+        ros_template_node::StructuredLogger::Component::SUBSCRIBER,
+        ros_template_node::StructuredLogger::EventType::RECEIVE,
+        "Robot movement detected", movement_context);
     RCLCPP_INFO(this->get_logger(), "Robot is moving!");
   }
 }
