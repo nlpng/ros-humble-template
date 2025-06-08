@@ -5,6 +5,8 @@
 TemplateNode::TemplateNode()
     : Node("template_node"), count_(0), start_time_(this->get_clock()->now())
 {
+  // Initialize structured logger
+  structured_logger_ = std::make_unique<ros_template_node::StructuredLogger>("template_node");
   // Declare parameters with default values
   this->declare_parameter("publish_rate", 1.0);
   this->declare_parameter("topic_prefix", "template");
@@ -44,6 +46,14 @@ TemplateNode::TemplateNode()
       this->create_wall_timer(std::chrono::seconds(30),
                               std::bind(&TemplateNode::health_callback, this));
 
+  // Log structured initialization
+  nlohmann::json init_context;
+  init_context["publish_rate"] = publish_rate;
+  init_context["topic_prefix"] = topic_prefix;
+  structured_logger_->info(ros_template_node::StructuredLogger::Component::STARTUP,
+                          ros_template_node::StructuredLogger::EventType::INITIALIZATION,
+                          "Template node initialized successfully", init_context);
+  
   RCLCPP_INFO(this->get_logger(),
               "Template node initialized with rate: %.2f Hz", publish_rate);
   RCLCPP_INFO(this->get_logger(), "Publishing to topics with prefix: %s",
@@ -52,6 +62,13 @@ TemplateNode::TemplateNode()
 
 void TemplateNode::timer_callback()
 {
+  // Log timer event
+  nlohmann::json timer_context;
+  timer_context["count"] = count_;
+  structured_logger_->debug(ros_template_node::StructuredLogger::Component::TIMER,
+                           ros_template_node::StructuredLogger::EventType::PUBLISH,
+                           "Timer callback executing", timer_context);
+  
   // Publish status message
   auto status_msg = std_msgs::msg::String();
   status_msg.data = "Template node running - count: " + std::to_string(count_);
@@ -72,6 +89,14 @@ void TemplateNode::timer_callback()
   temperature_publisher_->publish(temp_msg);
 
   if (count_ % 10 == 0) {
+    nlohmann::json publish_context;
+    publish_context["count"] = count_;
+    publish_context["temperature"] = temp_msg.temperature;
+    publish_context["topics"] = nlohmann::json::array({"status", "counter", "temperature"});
+    structured_logger_->info(ros_template_node::StructuredLogger::Component::TIMER,
+                            ros_template_node::StructuredLogger::EventType::PUBLISH,
+                            "Periodic data published", publish_context);
+    
     RCLCPP_INFO(this->get_logger(), "Published count: %zu, temp: %.2f°C",
                 count_, temp_msg.temperature);
   }
@@ -81,13 +106,22 @@ void TemplateNode::timer_callback()
 
 void TemplateNode::health_callback()
 {
+  auto uptime = (this->get_clock()->now() - start_time_).seconds();
+  
+  // Log health check
+  nlohmann::json health_context;
+  health_context["uptime_seconds"] = static_cast<int>(uptime);
+  health_context["message_count"] = count_;
+  health_context["status"] = "operational";
+  structured_logger_->info(ros_template_node::StructuredLogger::Component::HEALTH,
+                          ros_template_node::StructuredLogger::EventType::HEALTH_CHECK,
+                          "Node health check completed", health_context);
+  
   auto health_msg = diagnostic_msgs::msg::DiagnosticStatus();
   health_msg.level = diagnostic_msgs::msg::DiagnosticStatus::OK;
   health_msg.name = this->get_name();
   health_msg.message = "Node operational";
   health_msg.hardware_id = "template_node_container";
-
-  auto uptime = (this->get_clock()->now() - start_time_).seconds();
 
   diagnostic_msgs::msg::KeyValue uptime_kv;
   uptime_kv.key = "uptime_seconds";
@@ -104,6 +138,18 @@ void TemplateNode::health_callback()
 
 void TemplateNode::cmd_callback(const geometry_msgs::msg::Twist::SharedPtr msg)
 {
+  // Log structured command reception
+  nlohmann::json cmd_context;
+  cmd_context["linear_x"] = msg->linear.x;
+  cmd_context["linear_y"] = msg->linear.y;
+  cmd_context["linear_z"] = msg->linear.z;
+  cmd_context["angular_x"] = msg->angular.x;
+  cmd_context["angular_y"] = msg->angular.y;
+  cmd_context["angular_z"] = msg->angular.z;
+  structured_logger_->debug(ros_template_node::StructuredLogger::Component::SUBSCRIBER,
+                           ros_template_node::StructuredLogger::EventType::RECEIVE,
+                           "Command velocity received", cmd_context);
+  
   RCLCPP_INFO(this->get_logger(),
               "Received cmd_vel - linear: [%.2f, %.2f, %.2f], angular: [%.2f, "
               "%.2f, %.2f]",
@@ -112,6 +158,13 @@ void TemplateNode::cmd_callback(const geometry_msgs::msg::Twist::SharedPtr msg)
 
   // Example of processing received command
   if (std::abs(msg->linear.x) > 0.1 || std::abs(msg->angular.z) > 0.1) {
+    nlohmann::json movement_context;
+    movement_context["is_moving"] = true;
+    movement_context["linear_x"] = msg->linear.x;
+    movement_context["angular_z"] = msg->angular.z;
+    structured_logger_->info(ros_template_node::StructuredLogger::Component::SUBSCRIBER,
+                            ros_template_node::StructuredLogger::EventType::RECEIVE,
+                            "Robot movement detected", movement_context);
     RCLCPP_INFO(this->get_logger(), "Robot is moving!");
   }
 }

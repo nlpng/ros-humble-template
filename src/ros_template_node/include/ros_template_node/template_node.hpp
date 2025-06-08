@@ -11,6 +11,7 @@
 #include "sensor_msgs/msg/temperature.hpp"
 #include "std_msgs/msg/int32.hpp"
 #include "std_msgs/msg/string.hpp"
+#include "ros_template_node/structured_logger.hpp"
 
 class TemplateNode : public rclcpp::Node
 {
@@ -40,4 +41,7 @@ private:
   // Data
   size_t count_;
   rclcpp::Time start_time_;
+  
+  // Structured logger
+  std::unique_ptr<ros_template_node::StructuredLogger> structured_logger_;
 };

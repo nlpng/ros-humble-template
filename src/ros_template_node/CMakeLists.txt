@@ -12,9 +12,12 @@ find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(diagnostic_msgs REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(SPDLOG REQUIRED spdlog)
+find_package(nlohmann_json REQUIRED)
 
 # Create library for testing
-add_library(${PROJECT_NAME} src/template_node.cpp)
+add_library(${PROJECT_NAME} src/template_node.cpp src/structured_logger.cpp)
 
 # Include directories for library
 target_include_directories(${PROJECT_NAME} PUBLIC
@@ -33,6 +36,10 @@ ament_target_dependencies(
   "sensor_msgs"
   "diagnostic_msgs"
 )
+
+# Link spdlog and nlohmann_json
+target_link_libraries(${PROJECT_NAME} ${SPDLOG_LIBRARIES} nlohmann_json::nlohmann_json)
+target_include_directories(${PROJECT_NAME} PRIVATE ${SPDLOG_INCLUDE_DIRS})
 
 # Create executable
 add_executable(template_node src/main.cpp)

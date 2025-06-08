@@ -9,6 +9,7 @@ from geometry_msgs.msg import Twist
 from rclpy.node import Node
 from sensor_msgs.msg import Temperature
 from std_msgs.msg import Int32, String
+from .structured_logger import StructuredLogger, Component, EventType
 
 
 class PyTemplateNode(Node):
@@ -33,6 +34,9 @@ class PyTemplateNode(Node):
         # Initialize counter and start time
         self.count = 0
         self.start_time = self.get_clock().now()
+        
+        # Initialize structured logger
+        self.structured_logger = StructuredLogger("py_template_node")
 
         # Create publishers
         self.string_publisher = self.create_publisher(
@@ -63,6 +67,16 @@ class PyTemplateNode(Node):
         # Create health timer (30 seconds)
         self.health_timer = self.create_timer(30.0, self.health_callback)
 
+        # Log structured initialization
+        init_context = {
+            "publish_rate": publish_rate,
+            "topic_prefix": topic_prefix
+        }
+        self.structured_logger.info(
+            Component.STARTUP, EventType.INITIALIZATION,
+            "Python template node initialized successfully", init_context
+        )
+        
         self.get_logger().info(
             f"Python template node initialized with rate: {publish_rate:.2f} Hz"
         )
@@ -70,6 +84,13 @@ class PyTemplateNode(Node):
 
     def timer_callback(self):
         """Publish data periodically via timer callback."""
+        # Log timer event
+        timer_context = {"count": self.count}
+        self.structured_logger.debug(
+            Component.TIMER, EventType.PUBLISH,
+            "Timer callback executing", timer_context
+        )
+        
         # Publish status message
         status_msg = String()
         status_msg.data = f"Python template node running - count: {self.count}"
@@ -91,6 +112,16 @@ class PyTemplateNode(Node):
         self.temperature_publisher.publish(temp_msg)
 
         if self.count % 10 == 0:
+            publish_context = {
+                "count": self.count,
+                "temperature": temp_msg.temperature,
+                "topics": ["status", "counter", "temperature"]
+            }
+            self.structured_logger.info(
+                Component.TIMER, EventType.PUBLISH,
+                "Periodic data published", publish_context
+            )
+            
             self.get_logger().info(
                 f"Published count: {self.count}, temp: {temp_msg.temperature:.2f}°C"
             )
@@ -99,13 +130,24 @@ class PyTemplateNode(Node):
 
     def health_callback(self):
         """Publish node health status."""
+        uptime = (self.get_clock().now() - self.start_time).nanoseconds / 1e9
+        
+        # Log health check
+        health_context = {
+            "uptime_seconds": int(uptime),
+            "message_count": self.count,
+            "status": "operational"
+        }
+        self.structured_logger.info(
+            Component.HEALTH, EventType.HEALTH_CHECK,
+            "Node health check completed", health_context
+        )
+        
         health_msg = DiagnosticStatus()
         health_msg.level = DiagnosticStatus.OK
         health_msg.name = self.get_name()
         health_msg.message = "Node operational"
         health_msg.hardware_id = "py_template_node_container"
-
-        uptime = (self.get_clock().now() - self.start_time).nanoseconds / 1e9
 
         uptime_kv = KeyValue()
         uptime_kv.key = "uptime_seconds"
@@ -121,6 +163,20 @@ class PyTemplateNode(Node):
 
     def cmd_callback(self, msg):
         """Process received command velocity messages."""
+        # Log structured command reception
+        cmd_context = {
+            "linear_x": msg.linear.x,
+            "linear_y": msg.linear.y,
+            "linear_z": msg.linear.z,
+            "angular_x": msg.angular.x,
+            "angular_y": msg.angular.y,
+            "angular_z": msg.angular.z
+        }
+        self.structured_logger.debug(
+            Component.SUBSCRIBER, EventType.RECEIVE,
+            "Command velocity received", cmd_context
+        )
+        
         self.get_logger().info(
             f"Received cmd_vel - linear: [{msg.linear.x:.2f}, "
             f"{msg.linear.y:.2f}, {msg.linear.z:.2f}], "
@@ -130,6 +186,15 @@ class PyTemplateNode(Node):
 
         # Example of processing received command
         if abs(msg.linear.x) > 0.1 or abs(msg.angular.z) > 0.1:
+            movement_context = {
+                "is_moving": True,
+                "linear_x": msg.linear.x,
+                "angular_z": msg.angular.z
+            }
+            self.structured_logger.info(
+                Component.SUBSCRIBER, EventType.RECEIVE,
+                "Robot movement detected", movement_context
+            )
             self.get_logger().info("Robot is moving!")
 
 

@@ -8,7 +8,14 @@ RUN apt-get update && apt-get install -y \
     git \
     python3-colcon-common-extensions \
     python3-rosdep \
+    libspdlog-dev \
+    nlohmann-json3-dev \
+    pkg-config \
+    python3-pip \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Python structured logging dependencies
+RUN pip3 install structlog python-json-logger
 
 # Create workspace
 WORKDIR /ros2_ws
@@ -33,7 +40,12 @@ RUN apt-get update && apt-get install -y \
     ros-humble-foxglove-bridge \
     ros-humble-launch \
     ros-humble-launch-ros \
+    libspdlog1 \
+    python3-pip \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Python structured logging dependencies in runtime stage
+RUN pip3 install structlog python-json-logger
 
 # Create workspace
 WORKDIR /ros2_ws
