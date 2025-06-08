@@ -51,6 +51,7 @@ src/
 ### C++ (`ros_template_node`)
 - Use modern C++17: `auto`, smart pointers, range-based loops
 - RAII for resource management
+- **ALWAYS apply clang-format when modifying C++ files**: Run `find src/ros_template_node -name "*.cpp" -o -name "*.hpp" | xargs clang-format -i` after any C++ changes
 - Default topic prefix: `template`, rate: 2.0 Hz
 
 ### Python (`py_template_node`)  
@@ -66,6 +67,7 @@ src/
 
 ### 🔧 Code Changes
 - Test both C++ and Python implementations when making changes
+- **MANDATORY: Apply clang-format to C++ files after any modifications** using `find src/ros_template_node -name "*.cpp" -o -name "*.hpp" | xargs clang-format -i`
 - Update documentation for new features or dependencies
 - Verify all Docker Compose profiles work after modifications
 

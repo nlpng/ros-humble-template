@@ -75,6 +75,7 @@ The development follows a task-based approach. Implementation the followings:
 - Smart pointers: Prefer `std::shared_ptr` and `std::unique_ptr` over raw pointers
 - Header guards: Use `#pragma once` instead of traditional guards
 - RAII: Use constructors/destructors for resource management
+- **Formatting**: ALWAYS apply clang-format after modifying any C++ file using: `find src/ros_template_node -name "*.cpp" -o -name "*.hpp" | xargs clang-format -i`
 
 ## Notes
 
