@@ -120,3 +120,4 @@
 - [ ] Production-ready logging and metrics
 
 ## Discovered During Work
+- [x] Fix CI pipeline by removing build-and-test job since codebase is Docker-based (2025-06-09)
