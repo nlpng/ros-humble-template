@@ -31,7 +31,7 @@ services:
       start_period: 15s
     command: >
       ros2 launch ros_template_node template.launch.py
-      publish_rate:=2.0
+      publish_rate:=10.0
       topic_prefix:=template
 
   # Python template node
@@ -65,7 +65,7 @@ services:
       start_period: 15s
     command: >
       ros2 launch py_template_node py_template.launch.py
-      publish_rate:=1.5
+      publish_rate:=10.0
       topic_prefix:=py_template
 
   # Foxglove bridge for visualization (separate service)
