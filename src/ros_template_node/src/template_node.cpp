@@ -158,7 +158,8 @@ void TemplateNode::cmd_callback(const geometry_msgs::msg::Twist::SharedPtr msg)
       "Command velocity received", cmd_context);
 
   RCLCPP_INFO(this->get_logger(),
-              "Received cmd_vel - linear: [%.2f, %.2f, %.2f], angular: [%.2f, %.2f, %.2f]",
+              "Received cmd_vel - linear: [%.2f, %.2f, %.2f], angular: [%.2f, "
+              "%.2f, %.2f]",
               msg->linear.x, msg->linear.y, msg->linear.z, msg->angular.x,
               msg->angular.y, msg->angular.z);
 
