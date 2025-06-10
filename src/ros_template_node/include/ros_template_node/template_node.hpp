@@ -8,7 +8,6 @@
 #include "diagnostic_msgs/msg/diagnostic_status.hpp"
 #include "geometry_msgs/msg/twist.hpp"
 #include "rclcpp/rclcpp.hpp"
-#include "ros_template_node/performance_monitor.hpp"
 #include "ros_template_node/structured_logger.hpp"
 #include "sensor_msgs/msg/temperature.hpp"
 #include "std_msgs/msg/int32.hpp"
@@ -45,7 +44,4 @@ private:
 
   // Structured logger
   std::unique_ptr<ros_template_node::StructuredLogger> structured_logger_;
-
-  // Performance monitor
-  std::unique_ptr<ros_template_node::PerformanceMonitor> performance_monitor_;
 };
