@@ -33,9 +33,9 @@ TemplateNode::TemplateNode()
           topic_prefix + "/health", 10);
 
   // Create subscriber
-  //   cmd_subscription_ = this->create_subscription<geometry_msgs::msg::Twist>(
-  //       topic_prefix + "/cmd_vel", 10,
-  //       std::bind(&TemplateNode::cmd_callback, this, std::placeholders::_1));
+  cmd_subscription_ = this->create_subscription<geometry_msgs::msg::Twist>(
+      topic_prefix + "/cmd_vel", 10,
+      std::bind(&TemplateNode::cmd_callback, this, std::placeholders::_1));
 
   // Create timer
   auto timer_period =
@@ -142,40 +142,36 @@ void TemplateNode::health_callback()
   health_publisher_->publish(health_msg);
 }
 
-// void TemplateNode::cmd_callback(const geometry_msgs::msg::Twist::SharedPtr
-// msg)
-// {
+void TemplateNode::cmd_callback(const geometry_msgs::msg::Twist::SharedPtr msg)
+{
+  // Log structured command reception
+  nlohmann::json cmd_context;
+  cmd_context["linear_x"] = msg->linear.x;
+  cmd_context["linear_y"] = msg->linear.y;
+  cmd_context["linear_z"] = msg->linear.z;
+  cmd_context["angular_x"] = msg->angular.x;
+  cmd_context["angular_y"] = msg->angular.y;
+  cmd_context["angular_z"] = msg->angular.z;
+  structured_logger_->debug(
+      ros_template_node::StructuredLogger::Component::SUBSCRIBER,
+      ros_template_node::StructuredLogger::EventType::RECEIVE,
+      "Command velocity received", cmd_context);
 
-//   // Log structured command reception
-//   nlohmann::json cmd_context;
-//   cmd_context["linear_x"] = msg->linear.x;
-//   cmd_context["linear_y"] = msg->linear.y;
-//   cmd_context["linear_z"] = msg->linear.z;
-//   cmd_context["angular_x"] = msg->angular.x;
-//   cmd_context["angular_y"] = msg->angular.y;
-//   cmd_context["angular_z"] = msg->angular.z;
-//   structured_logger_->debug(
-//       ros_template_node::StructuredLogger::Component::SUBSCRIBER,
-//       ros_template_node::StructuredLogger::EventType::RECEIVE,
-//       "Command velocity received", cmd_context);
+  RCLCPP_INFO(this->get_logger(),
+              "Received cmd_vel - linear: [%.2f, %.2f, %.2f], angular: [%.2f, %.2f, %.2f]",
+              msg->linear.x, msg->linear.y, msg->linear.z, msg->angular.x,
+              msg->angular.y, msg->angular.z);
 
-//   RCLCPP_INFO(this->get_logger(),
-//               "Received cmd_vel - linear: [%.2f, %.2f, %.2f], angular: [%.2f,
-//               "
-//               "%.2f, %.2f]",
-//               msg->linear.x, msg->linear.y, msg->linear.z, msg->angular.x,
-//               msg->angular.y, msg->angular.z);
-
-//   // Example of processing received command
-//   if (std::abs(msg->linear.x) > 0.1 || std::abs(msg->angular.z) > 0.1) {
-//     nlohmann::json movement_context;
-//     movement_context["is_moving"] = true;
-//     movement_context["linear_x"] = msg->linear.x;
-//     movement_context["angular_z"] = msg->angular.z;
-//     structured_logger_->info(
-//         ros_template_node::StructuredLogger::Component::SUBSCRIBER,
-//         ros_template_node::StructuredLogger::EventType::RECEIVE,
-//         "Robot movement detected", movement_context);
-//     RCLCPP_INFO(this->get_logger(), "Robot is moving!");
-//   }
-// }
+  // Example of processing received command
+  if (std::abs(msg->linear.x) > 0.1 || std::abs(msg->angular.z) > 0.1) {
+    nlohmann::json movement_context;
+    movement_context["is_moving"] = true;
+    movement_context["linear_x"] = msg->linear.x;
+    movement_context["angular_z"] = msg->angular.z;
+    structured_logger_->info(
+        ros_template_node::StructuredLogger::Component::SUBSCRIBER,
+        ros_template_node::StructuredLogger::EventType::RECEIVE,
+        "Robot movement detected", movement_context);
+    RCLCPP_INFO(this->get_logger(), "Robot is moving!");
+  }
+}
